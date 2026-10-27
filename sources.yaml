@@ -1,0 +1,50 @@
+# Watchlist: the finite set of pages scraped on every run.
+# Add a page here once Discovery (or you) find a good one.
+#
+# require_company: only keep events that mention one of the tracked companies
+# require_keyword: only keep events that mention a channel/partner keyword
+# host: default Organiser/Host when the page does not state one
+
+sources:
+  # Channel Sales Association (channelsalesassociation.com) has no public events
+  # page (checked: /events returns 404; site is membership-gated). Add a URL here
+  # if one appears, or paste event links you hear about from the community.
+
+  - label: Microsoft events
+    url: https://events.microsoft.com/
+    host: Microsoft
+    require_keyword: true
+
+  - label: AWS events
+    url: https://aws.amazon.com/events/
+    host: AWS
+    require_keyword: true
+
+  - label: Google Cloud events
+    url: https://cloud.google.com/events
+    host: Google
+    require_keyword: true
+
+  - label: Salesforce events
+    url: https://www.salesforce.com/events/
+    host: Salesforce
+    require_keyword: true
+
+  - label: ServiceNow events
+    url: https://www.servicenow.com/events.html
+    host: ServiceNow
+    require_keyword: true
+
+  - label: Oracle events
+    url: https://www.oracle.com/events/
+    host: Oracle
+    require_keyword: true
+
+  - label: Eventbrite - channel partner events (NYC)
+    url: https://www.eventbrite.com/d/ny--new-york/channel-partner/
+    require_company: true
+
+  - label: Luma - channel / partner events
+    url: https://lu.ma/discover
+    require_company: true
+    require_keyword: true

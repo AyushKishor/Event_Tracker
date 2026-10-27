@@ -1,0 +1,55 @@
+name: Monthly event refresh
+
+on:
+  schedule:
+    - cron: "0 13 1 * *"   # 1st of every month, 13:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monthly-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - run: python -m playwright install --with-deps chromium
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Refresh tracker.xlsx
+        env:
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}   # optional; discovery is skipped without it
+        run: python refresh.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tracker
+          path: tracker.xlsx
+
+      - name: Commit updated workbook
+        run: |
+          if git diff --quiet -- tracker.xlsx && [ -z "$(git ls-files --others --exclude-standard tracker.xlsx)" ]; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tracker.xlsx
+          git commit -m "Monthly event refresh $(date -u +%Y-%m)"
+          git pull --rebase
+          git push

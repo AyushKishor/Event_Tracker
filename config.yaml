@@ -1,0 +1,99 @@
+# Tracker settings. Edit freely; no code changes needed.
+
+lookahead_months: 6        # only keep events starting within this window
+include_virtual: true      # keep virtual/online events regardless of city
+
+# Companies to flag. Key = label written to the "Companies Attending" column.
+companies:
+  Microsoft:
+    - Microsoft
+    - MSFT
+    - Azure
+    - Dynamics 365
+  AWS:
+    - AWS
+    - Amazon Web Services
+    - re:Invent
+  Google:
+    - Google Cloud
+    - Google
+    - GCP
+  Salesforce:
+    - Salesforce
+    - Dreamforce
+    - Slack
+  ServiceNow:
+    - ServiceNow
+  Oracle:
+    - Oracle
+    - OCI
+
+# Regions to keep. Key = value written to the "Region" column.
+regions:
+  New York:
+    - New York
+    - NYC
+    - Manhattan
+    - Brooklyn
+    - ", NY"
+  Seattle:
+    - Seattle
+    - Bellevue
+    - Redmond
+    - Kirkland
+  India:
+    - India
+    - Bengaluru
+    - Bangalore
+    - Hyderabad
+    - Mumbai
+    - Delhi
+    - Gurgaon
+    - Gurugram
+    - Noida
+    - Pune
+    - Chennai
+  Bay Area:
+    - Bay Area
+    - San Francisco
+    - San Jose
+    - Santa Clara
+    - Mountain View
+    - Sunnyvale
+    - Palo Alto
+    - Oakland
+    - Redwood City
+    - South San Francisco
+  Texas:
+    - Texas
+    - Austin
+    - Dallas
+    - Houston
+    - San Antonio
+    - Plano
+    - Irving
+    - ", TX"
+
+# Words that mark an event as channel/partner relevant (used for Discovery
+# and for sources with require_company/require_keyword set).
+keywords:
+  - channel
+  - partner
+  - alliance
+  - alliances
+  - co-sell
+  - marketplace
+  - ISV
+  - GSI
+  - reseller
+  - MSP
+  - ecosystem
+
+# Discovery searches (needs BRAVE_API_KEY). {company} is substituted per company.
+discovery:
+  enabled: true
+  results_per_query: 10
+  queries:
+    - "{company} partner summit {year}"
+    - "{company} channel partner event {year}"
+    - "{company} partner ecosystem conference {year} speaker"
