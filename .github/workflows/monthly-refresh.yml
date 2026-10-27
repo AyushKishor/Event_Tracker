@@ -33,7 +33,8 @@ jobs:
 
       - name: Refresh tracker.xlsx
         env:
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}   # optional; discovery is skipped without it
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}         # optional: web-search Discovery
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }} # optional: bot-protected pages (ServiceNow, Dell, ...)
         run: python refresh.py
 
       - uses: actions/upload-artifact@v4

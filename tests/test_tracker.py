@@ -145,3 +145,69 @@ def test_events_from_2026_sheet_are_covered():
 def test_irrelevant_out_of_region_event_is_dropped():
     assert not verdict("Local Pottery Fair", "Boise").keep
     assert not verdict("Regional Dental Expo", "Boise").keep  # event word alone, out of region
+
+
+SERVICENOW_MD = """
+World Forum London, United Kingdom
+
+Oct 20, 2026Excel London
+Video CTA
+
+![tokyo city image](https://example.com/x.png)World Forum Tokyo, Japan
+Oct 27, 2026 - Oct 28, 2026Grand Prince Hotel Takanawa
+
+now\\[dev\\]26
+Nov 4-5, 2026San Jose Convention Center, San Jose
+Register Now
+
+Gartner IT Symposium/Xpo 2026
+Oct 19-22, 2026Orlando, FL
+"""
+
+
+def test_markdown_fallback_for_blocked_pages():
+    today = date(2026, 10, 20)
+    out = extract.parse_events(SERVICENOW_MD, "http://sn", cfg(), {"label": "SN", "host": "ServiceNow"}, today,
+                               markdown=True)
+    by = {e.name: e for e in out}
+    assert "World Forum London, United Kingdom" in by
+    assert by["World Forum London, United Kingdom"].start == date(2026, 10, 20)
+    assert by["now[dev]26"].city == "San Jose" and by["now[dev]26"].region == "Bay Area"
+    assert all(e.companies == ["ServiceNow"] for e in out)
+
+
+def test_itemlist_jsonld_and_description_tagging():
+    html = ("<script type='application/ld+json'>" + json.dumps({"@type": "ItemList", "itemListElement": [
+        {"@type": "ListItem", "item": {"@type": "Event", "name": "Partner Workshop", "startDate": "2027-02-10",
+         "description": "Join SaaSify and AWS in Seattle", "location": {"address": {"addressLocality": "Seattle"}}}}]})
+        + "</script>")
+    out = extract.parse_events(html, "http://x", cfg(), {"label": "t", "require_company": True}, TODAY)
+    assert [(e.name, e.companies, e.region) for e in out] == [("Partner Workshop", ["AWS"], "Seattle")]
+
+
+def test_date_ranges_and_year_inference():
+    t = date(2026, 10, 27)
+    assert extract._range_from_match("Nov 30 – Dec 4, 2026", t) == (date(2026, 11, 30), date(2026, 12, 4))
+    assert extract._range_from_match("October 25–28", t) == (date(2027, 10, 25), date(2027, 10, 28))
+    assert extract._range_from_match("November 30–December 3", t) == (date(2026, 11, 30), date(2026, 12, 3))
+    assert extract._range_from_match("October 20-22", t, year=2026)[0] == date(2026, 10, 20)
+
+
+def test_named_date_events_flagship_and_pattern():
+    page = ("<p>AWS re:Invent | Nov 30 – Dec 4, 2026 | Las Vegas, NV AWS re:Invent is a week</p>"
+            "<p>October 20-22 NVIDIA GTC Berlin 2026 Connect</p><p>March 15-18 NVIDIA GTC 2027 Connect</p>")
+    c, today = cfg(), date(2026, 10, 27)
+    one = extract.parse_events(page, "http://aws", c, {"label": "a", "host": "AWS", "name": "AWS re:Invent", "single": True}, today)
+    assert [(e.name, e.start, e.city) for e in one] == [("AWS re:Invent 2026", date(2026, 11, 30), "Las Vegas")]
+    many = extract.parse_events(page, "http://nv", c, {"label": "n", "host": "NVIDIA",
+                                "name_pattern": r"NVIDIA GTC(?: [A-Za-z.,' ]+?)? 20\d\d"}, today)
+    assert [e.name for e in many] == ["NVIDIA GTC 2027"]  # Berlin Oct 20 2026 is already past
+
+
+def test_prefix_dedupe_and_junk_names(tmp_path):
+    path = tmp_path / "t.xlsx"
+    a = extract.Event(name="Channel Partners Conference & Expo 2027", start=date(2027, 3, 15), city="Las Vegas", region="Other")
+    b = extract.Event(name="Channel Partners Conference & Expo 2027, co-located with MSP Summit", start=date(2027, 3, 15), region="Other")
+    assert workbook.merge(path, [a, b], TODAY) == (1, 1)
+    html = jsonld_page([ev("Learn More & Register", "2027-03-10", "Seattle", "AWS")])
+    assert extract.parse_events(html, "http://x", cfg(), {"label": "t"}, TODAY) == []

@@ -9,8 +9,9 @@ limited to New York, Seattle, India, Bay Area, Texas (plus virtual). Output is o
 only new events. Existing rows, including your **Status** and **Notes**, are never modified.
 
 GitHub Actions (`.github/workflows/monthly-refresh.yml`) runs this on the 1st of each month and commits the
-updated workbook. Trigger it manually from the Actions tab (workflow_dispatch). Add `BRAVE_API_KEY` as a repo
-secret to enable Discovery. Commit your edits to `tracker.xlsx` before the next run.
+updated workbook. Trigger it manually from the Actions tab (workflow_dispatch). Optional repo secrets: `BRAVE_API_KEY` (Discovery) and
+`FIRECRAWL_API_KEY` (pages that block normal scrapers, e.g. ServiceNow). Scheduled workflows only run from the
+default branch, so merge this branch first. Commit your edits to `tracker.xlsx` before the next run.
 
 ## Local use
 ```
@@ -27,8 +28,15 @@ Mirrors the manually kept 2026 tracker (`scripts/coverage_check.py <xlsx>` repla
 - In the five priority regions or virtual: local summits/meetups with a tech topic or event word, even with no company named (e.g. "AI Agents Seattle").
 - `python scripts/import_legacy.py <old.xlsx>` loads the old sheet into `tracker.xlsx` (already done for the 2026 sheet).
 
+## Source options (`sources.yaml`)
+`host` default organiser · `require_company` / `require_keyword` filters · `name` + `single` for one-event flagship
+pages (reads the date written next to the name) · `name_pattern` regex for pages listing several named editions
+(e.g. NVIDIA GTC) · `name_with_heading` for city listings (Microsoft AI Tour).
+Each page is tried as: JSON-LD / embedded app JSON -> HTML cards -> headless browser -> Firecrawl markdown.
+
 ## Limits
 - Extraction uses schema.org Event data first, then a card/date heuristic. Pages that show neither need a
   custom parser or a better URL; sources returning nothing are listed at the end of each run.
 - Company attendance and speakers are only detected where the page names them.
 - channelsalesassociation.com has no public events page; use vendor/third-party sources and Discovery.
+- Pages that return nothing (listed at the end of every run) usually need `FIRECRAWL_API_KEY`, a `name`/`single` entry, or a more specific URL.

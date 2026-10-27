@@ -1,6 +1,8 @@
 # Watchlist: the finite set of pages scraped on every run.
 # Add a page here once Discovery (or you) find a good one.
 #
+# name: force the event name (flagship pages whose headings are marketing copy)
+# single: one-event page; keep only the nearest upcoming date
 # require_company: only keep events that mention one of the tracked companies
 # require_keyword: only keep events that mention a channel/partner keyword
 # host: default Organiser/Host when the page does not state one
@@ -12,43 +14,42 @@ sources:
 
   # ---- Vendor flagships & partner programs ----
   - {label: Microsoft events, url: "https://events.microsoft.com/", host: Microsoft, require_keyword: true}
-  - {label: Microsoft AI Tour, url: "https://aitour.microsoft.com/", host: Microsoft}
-  - {label: Microsoft Ignite, url: "https://ignite.microsoft.com/en-US/home", host: Microsoft}
+  - {label: Microsoft AI Tour, url: "https://aitour.microsoft.com/", host: Microsoft, name: "Microsoft AI Tour", name_with_heading: "Microsoft AI Tour"}
+  - {label: Microsoft Ignite, url: "https://ignite.microsoft.com/en-US/home", host: Microsoft, name: "Microsoft Ignite", single: true}
   - {label: AWS events, url: "https://aws.amazon.com/events/", host: AWS, require_keyword: true}
+  - {label: AWS re:Invent, url: "https://aws.amazon.com/events/", host: AWS, name: "AWS re:Invent", single: true}
   - {label: AWS Marketplace seller events, url: "https://aws.amazon.com/marketplace/resources/events/seller-conference", host: AWS}
   - {label: Google Cloud events, url: "https://cloud.google.com/events", host: Google, require_keyword: true}
-  - {label: Google Cloud Next, url: "https://cloud.google.com/next", host: Google}
+  - {label: Google Cloud Next, url: "https://cloud.google.com/next", host: Google, name: "Google Cloud Next", single: true}
   - {label: Salesforce events, url: "https://www.salesforce.com/events/", host: Salesforce, require_keyword: true}
-  - {label: Dreamforce, url: "https://www.salesforce.com/dreamforce/", host: Salesforce}
+  - {label: Dreamforce, url: "https://www.salesforce.com/dreamforce/", host: Salesforce, name: "Dreamforce", single: true}
   - {label: ServiceNow events, url: "https://www.servicenow.com/events.html", host: ServiceNow}
-  - {label: ServiceNow World Forum, url: "https://www.servicenow.com/events/world-forum.html", host: ServiceNow}
+  - {label: ServiceNow World Forum, url: "https://www.servicenow.com/events/world-forum.html", host: ServiceNow, name: "ServiceNow World Forum", single: true}
   - {label: Oracle events, url: "https://www.oracle.com/events/", host: Oracle, require_keyword: true}
-  - {label: Oracle AI World, url: "https://www.oracle.com/ai-world/", host: Oracle}
-  - {label: Oracle Customer Edge Summit, url: "https://www.oracle.com/customer-edge-summit/", host: Oracle}
+  - {label: Oracle AI World, url: "https://www.oracle.com/ai-world/", host: Oracle, name: "Oracle AI World", single: true}
+  - {label: Oracle Customer Edge Summit, url: "https://www.oracle.com/customer-edge-summit/", host: Oracle, name: "Oracle Customer Edge Summit", single: true}
 
   # ---- Other target accounts tracked in the 2026 sheet ----
-  - {label: NVIDIA GTC, url: "https://www.nvidia.com/gtc/events/", host: NVIDIA}
+  - {label: NVIDIA GTC, url: "https://www.nvidia.com/gtc/events/", host: NVIDIA, name_pattern: "NVIDIA GTC(?: [A-Za-z.,' ]+?)? 20\\d\\d"}
   - {label: SAP events, url: "https://www.sap.com/events.html", host: SAP, require_keyword: true}
-  - {label: Snowflake events, url: "https://www.snowflake.com/en/summit/", host: Snowflake}
-  - {label: Databricks Data+AI Summit, url: "https://www.databricks.com/dataaisummit", host: Databricks}
-  - {label: Cloudflare Connect, url: "https://www.cloudflare.com/en-gb/lp/cloudflare-connect-2026/", host: Cloudflare}
+  - {label: Snowflake events, url: "https://www.snowflake.com/en/summit/", host: Snowflake, name: "Snowflake Summit", single: true}
+  - {label: Databricks Data+AI Summit, url: "https://www.databricks.com/dataaisummit", host: Databricks, name: "Databricks Data+AI Summit", single: true}
+  - {label: Cloudflare Connect, url: "https://www.cloudflare.com/en-gb/lp/cloudflare-connect-2026/", host: Cloudflare, name: "Cloudflare Connect", single: true}
   - {label: Dell Technologies World, url: "https://www.dell.com/en-us/dt/dell-technologies-world/index.htm", host: Dell}
-  - {label: Cisco Live, url: "https://www.ciscolive.com/global.html", host: Cisco}
-  - {label: Workday Rising, url: "https://rising.workday.com/us.html", host: Workday}
-  - {label: Okta Oktane, url: "https://www.okta.com/oktane/", host: Okta}
+  - {label: Cisco Live, url: "https://www.ciscolive.com/global.html", host: Cisco, name: "Cisco Live", single: true}
+  - {label: Workday Rising, url: "https://rising.workday.com/us.html", host: Workday, name: "Workday Rising", single: true}
+  - {label: Okta Oktane, url: "https://www.okta.com/oktane/", host: Okta, name: "Okta Oktane", single: true}
   - {label: NetApp events, url: "https://www.netapp.com/company/events/", host: NetApp}
 
   # ---- Channel / partnership industry ----
-  - {label: Channel Partners Conference, url: "https://channelpartnersconference.com/"}
+  - {label: Channel Partners Conference, url: "https://channelpartnersconference.com/", name: "Channel Partners Conference & Expo", single: true}
   - {label: MSP Summit / events calendar, url: "https://themspsummit.com/events-calendar/"}
   - {label: Channel Pro Network, url: "https://events.channelpronetwork.com/"}
-  - {label: PartnerTechX, url: "https://channelfocuscommunity.net/partnertechx-2026/"}
-  - {label: Xchange (The Channel Co), url: "https://event.thechannelco.com/xchange-march/"}
+  - {label: PartnerTechX, url: "https://channelfocuscommunity.net/partnertechx-2026/", name: "PartnerTechX", single: true}
+  - {label: Xchange (The Channel Co), url: "https://event.thechannelco.com/xchange-march/", name: "Xchange", single: true}
 
   # ---- Curated lists / regional (India, Seattle) ----
-  - {label: Best tech events in India, url: "https://kripeshadwani.com/best-tech-events-in-india/", require_company: true}
-  - {label: 50 global partnership events, url: "https://www.journeybee.io/resources/the-50-global-events-that-will-define-partnerships"}
-  - {label: TechCon 365 Seattle, url: "https://www.techcon365.com/Seattle/", host: Microsoft}
+  - {label: TechCon 365 Seattle, url: "https://www.techcon365.com/Seattle/", host: Microsoft, name: "TechCon 365, DATACON & PWRCON Seattle", single: true}
   - {label: Seattle AI Week, url: "https://lu.ma/seattle", require_company: true}
   - {label: New Tech Northwest events, url: "https://www.newtechnorthwest.com/new-tech-events/"}
 

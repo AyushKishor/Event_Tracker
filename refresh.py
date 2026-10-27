@@ -24,10 +24,13 @@ def scrape(source: dict, cfg: dict) -> list[extract.Event]:
     url = source["url"]
     html = sources.fetch(url)
     events = extract.parse_events(html, url, cfg, source) if html else []
-    if not events:  # static HTML had nothing usable; try a rendered page
-        rendered = sources.fetch_rendered(url)
-        if rendered:
-            events = extract.parse_events(rendered, url, cfg, source)
+    # static HTML had nothing usable (JS-rendered or bot-blocked): try a browser, then Firecrawl
+    for fallback, is_markdown in ((sources.fetch_rendered, False), (sources.fetch_firecrawl, True)):
+        if events:
+            break
+        page = fallback(url)
+        if page and len(page) > 1500:  # tiny pages are block/error notices
+            events = extract.parse_events(page, url, cfg, source, markdown=is_markdown)
     return events
 
 

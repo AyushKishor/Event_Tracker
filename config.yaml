@@ -1,6 +1,6 @@
 # Tracker settings. Edit freely; no code changes needed.
 
-lookahead_months: 6        # only keep events starting within this window
+lookahead_months: 12       # only keep events starting within this window
 include_virtual: true      # keep virtual/online events regardless of city
 keep_out_of_region: true   # keep relevant events outside the 5 priority regions (flagships like
                            # Next, re:Invent, Knowledge; channel conferences) with Region = "Other"
@@ -136,6 +136,13 @@ keywords:
   - "partner day"
   - "seller forum"
   - "customer edge"
+
+# Cities recognised next to flagship-event dates on vendor pages (anything in `regions` also works).
+known_cities: [Las Vegas, Orlando, Chicago, Boston, "Washington, D.C.", Washington, Atlanta, Denver, Phoenix, Miami,
+  Nashville, San Diego, New Orleans, Philadelphia, Toronto, Vancouver, Montreal, Mexico City, London, Paris, Berlin, Munich,
+  Amsterdam, Barcelona, Madrid, Milan, Dublin, Stockholm, Copenhagen, Dubai, Riyadh, Tel Aviv, Singapore, Sydney, Melbourne,
+  Tokyo, Osaka, Seoul, Taipei, Jakarta, Mumbai, Bengaluru, Hyderabad, Delhi, Pune, Chennai, San Francisco, San Jose,
+  Santa Clara, Austin, Dallas, Houston, San Antonio, Seattle, New York, Bellevue, Redmond, Anaheim, Moscone, Venetian]
 
 # Channel / partnership-industry events that are always relevant (name match).
 channel_events:

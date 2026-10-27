@@ -14,8 +14,10 @@ MONTHS = (
     r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|"
     r"Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)"
 )
+_SEP = r"\s*[-–—]\s*"
 DATE_RE = re.compile(
-    rf"\b({MONTHS}\.?\s+\d{{1,2}}(?:\s*[-–]\s*\d{{1,2}})?,?\s+\d{{4}})\b", re.IGNORECASE
+    rf"\b({MONTHS}\.?\s+\d{{1,2}}(?:{_SEP}(?:{MONTHS}\.?\s+)?\d{{1,2}})?(?:,?\s+(?:19|20)\d{{2}})?)\b",
+    re.IGNORECASE,
 )
 VIRTUAL_RE = re.compile(r"\b(virtual|online|webinar|livestream|live stream)\b", re.IGNORECASE)
 
@@ -92,13 +94,56 @@ def _parse_date(value: str) -> date | None:
         return None
 
 
-def _range_from_match(text: str) -> tuple[date | None, date | None]:
-    """'Mar 3-5, 2027' -> (2027-03-03, 2027-03-05); 'Mar 3, 2027' -> (2027-03-03, None)."""
-    m = re.match(rf"({MONTHS}\.?)\s+(\d{{1,2}})(?:\s*[-–]\s*(\d{{1,2}}))?,?\s+(\d{{4}})", text, re.IGNORECASE)
+_RANGE_RE = re.compile(
+    rf"({MONTHS})\.?\s+(\d{{1,2}})(?:{_SEP}(?:({MONTHS})\.?\s+)?(\d{{1,2}}))?(?:,?\s+((?:19|20)\d{{2}}))?",
+    re.IGNORECASE,
+)
+
+
+def _range_from_match(text: str, today: date | None = None, year: int | None = None) -> tuple[date | None, date | None]:
+    """'Mar 3-5, 2027' / 'Nov 30 – Dec 4, 2026' / 'October 25–28' -> (start, end or None).
+
+    A missing year means the next occurrence on or after today.
+    """
+    today = today or date.today()
+    m = _RANGE_RE.match(text.strip())
     if not m:
         return _parse_date(text), None
-    mon, d1, d2, yr = m.groups()
-    return _parse_date(f"{mon} {d1}, {yr}"), (_parse_date(f"{mon} {d2}, {yr}") if d2 else None)
+    mon1, d1, mon2, d2, yr = m.groups()
+
+    def build(mon, day, year):
+        try:
+            return dateparser.parse(f"{mon} {day} {year}").date()
+        except (ValueError, OverflowError):
+            return None
+
+    start = build(mon1, d1, yr or year or today.year)
+    if start and not yr and not year and start < today:
+        start = build(mon1, d1, today.year + 1)
+    end = None
+    if d2 and start:
+        end = build(mon2 or mon1, d2, start.year)
+        if end and end < start:
+            end = build(mon2 or mon1, d2, start.year + 1)
+    return start, end
+
+
+def _is_event_type(node: dict) -> bool:
+    types = node.get("@type")
+    types = types if isinstance(types, list) else [types]
+    return any(isinstance(t, str) and t.endswith("Event") for t in types)
+
+
+def _walk(obj) -> Iterable[dict]:
+    """Yield every dict nested anywhere in obj (lists, ItemList wrappers, @graph, ...)."""
+    stack = [obj]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            yield node
+            stack.extend(reversed(list(node.values())))
+        elif isinstance(node, list):
+            stack.extend(reversed(node))
 
 
 def _jsonld_nodes(soup: BeautifulSoup) -> Iterable[dict]:
@@ -107,17 +152,44 @@ def _jsonld_nodes(soup: BeautifulSoup) -> Iterable[dict]:
             data = json.loads(tag.string or "")
         except (json.JSONDecodeError, TypeError):
             continue
-        stack = [data]
-        while stack:
-            node = stack.pop()
-            if isinstance(node, list):
-                stack.extend(reversed(node))
-            elif isinstance(node, dict):
-                stack.extend(node.get("@graph", []))
-                types = node.get("@type")
-                types = types if isinstance(types, list) else [types]
-                if any(isinstance(t, str) and t.endswith("Event") for t in types):
-                    yield node
+        for node in _walk(data):
+            if _is_event_type(node):
+                yield node
+
+
+START_KEYS = ("startDate", "start_at", "startAt", "start_date", "startTime", "start_time")
+
+
+def _embedded_json_events(soup: BeautifulSoup, base_url: str) -> list[Event]:
+    """Events inside app-state JSON (Next.js __NEXT_DATA__ etc.): dicts with a title and a start date."""
+    out = []
+    for tag in soup.find_all("script"):
+        if tag.get("type") == "application/ld+json" or not (tag.string or "").lstrip().startswith(("{", "[")):
+            continue
+        try:
+            data = json.loads(tag.string)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        for node in _walk(data):
+            key = next((k for k in START_KEYS if isinstance(node.get(k), str)), None)
+            if not key:
+                continue
+            inner = node.get("event") if isinstance(node.get("event"), dict) else node
+            name = inner.get("name") or inner.get("title")
+            start = _parse_date(node[key][:10] if re.match(r"\d{4}-\d\d-\d\d", node[key]) else node[key])
+            if not (isinstance(name, str) and name.strip() and start):
+                continue
+            geo = inner.get("geo_address_info") or inner.get("location") or {}
+            geo = geo if isinstance(geo, dict) else {}
+            city = geo.get("city") or geo.get("city_state") or inner.get("city") or ""
+            slug = inner.get("url") or inner.get("slug") or ""
+            out.append(Event(
+                name=name.strip(), start=start, city=str(city),
+                url=(base_url.rstrip("/").rsplit("/", 1)[0] + "/" + slug) if slug and not str(slug).startswith("http") else str(slug or base_url),
+                location_text=f"{city} {geo.get('full_address', '')} {inner.get('description', '') if isinstance(inner.get('description'), str) else ''}",
+                host=_name_of(node.get("hosts")) if node.get("hosts") else "",
+            ))
+    return out
 
 
 def _name_of(obj) -> str:
@@ -167,11 +239,12 @@ def _jsonld_events(soup: BeautifulSoup, base_url: str) -> list[Event]:
             cost=cost,
             url=str(node.get("url") or base_url),
         ))
-        out[-1].location_text = loc_text
+        desc = node.get("description")
+        out[-1].location_text = f"{loc_text} {desc if isinstance(desc, str) else ''}".strip()
     return out
 
 
-def _card_events(soup: BeautifulSoup, base_url: str) -> list[Event]:
+def _card_events(soup: BeautifulSoup, base_url: str, today: date | None = None) -> list[Event]:
     """Fallback for listing pages: any card-like element with a link, heading and a date."""
     from urllib.parse import urljoin
 
@@ -188,7 +261,7 @@ def _card_events(soup: BeautifulSoup, base_url: str) -> list[Event]:
         if not (m and link and head):
             continue
         name = head.get_text(" ", strip=True)
-        start, end = _range_from_match(m.group(1))
+        start, end = _range_from_match(m.group(1), today)
         if not (name and start) or (name, start) in seen:
             continue
         seen.add((name, start))
@@ -197,7 +270,103 @@ def _card_events(soup: BeautifulSoup, base_url: str) -> list[Event]:
     return out
 
 
-def _page_event(soup: BeautifulSoup, url: str) -> list[Event]:
+def _city_in(text: str, cities: list[str]) -> str:
+    """First known event city mentioned in text (earliest position wins)."""
+    hits = [(m.start(), c) for c in cities if (m := re.search(rf"(?<!\w){re.escape(c)}(?!\w)", text))]
+    return min(hits)[1] if hits else ""
+
+
+def _named_date_events(soup: BeautifulSoup, source: dict, url: str, today: date, cities: list[str]) -> list[Event]:
+    """Flagship pages. Find the event name in the page text and read the date written next to it.
+
+    `name` + `single`: one event, the nearest upcoming date written within 220 chars of the name.
+    `name_pattern` (regex): every match is its own event, e.g. 'NVIDIA GTC [A-Za-z., ]+ 20\\d\\d';
+    its date is the nearest date within 80 chars, before or after.
+    """
+    for t in soup(["script", "style", "noscript"]):
+        t.decompose()
+    text = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
+    found: dict[tuple, Event] = {}
+
+    def dates_in(window: str, offset: int, year: int | None = None):
+        for dm in DATE_RE.finditer(window):
+            start, end = _range_from_match(dm.group(1), today, year)
+            if start:
+                yield offset + dm.start(), start, end
+
+    if source.get("name_pattern"):
+        for m in re.finditer(source["name_pattern"], text):
+            lo = max(0, m.start() - 80)
+            ym = re.search(r"(?:19|20)\d\d", m.group(0))  # a year in the name fixes the date's year
+            cands = list(dates_in(text[lo: m.end() + 80], lo, int(ym.group(0)) if ym else None))
+            if not cands:
+                continue
+            pos, start, end = min(cands, key=lambda c: min(abs(c[0] - m.start()), abs(c[0] - m.end())))
+            if start < today:  # nearest date is past: the event is over, don't borrow a neighbour's date
+                continue
+            name = " ".join(m.group(0).split()).strip(" ,.")
+            window = text[max(0, m.start() - 80): m.end() + 120]
+            found.setdefault((name, start), Event(
+                name=name, start=start, end=end, url=url, city=_city_in(name + " " + window, cities),
+                location_text=window))
+    elif source.get("name"):
+        key = re.escape(source["name"].split(",")[0].strip())
+        best = None
+        for m in re.finditer(key, text, re.IGNORECASE):
+            lo = max(0, m.start() - 60)
+            window = text[lo: m.end() + 220]
+            for pos, start, end in dates_in(window, lo):
+                if start >= today and (best is None or start < best[0]):
+                    best = (start, end, text[pos: pos + 120], window)
+        if best:
+            start, end, after, window = best
+            found[(source["name"], start)] = Event(
+                name=source["name"], start=start, end=end, url=url, city=_city_in(after, cities),
+                location_text=window)
+    return list(found.values())
+
+
+_NOISE_LINE = re.compile(r"^(!\[|\[?(video cta|learn more|register|register now|add to calendar|find your city|get updates)\b|https?://)", re.IGNORECASE)
+
+
+def _text_events(text: str, base_url: str, today: date, cities: list[str]) -> list[Event]:
+    """Markdown / plain-text fallback: each future date line gets the nearest preceding title line."""
+    lines = [re.sub(r"\\([\[\]])", r"\1", l.strip(" *#|>\t")) for l in text.splitlines()]
+    lines = [l for l in lines if l]
+    out, seen = [], set()
+    for i, line in enumerate(lines):
+        m = DATE_RE.search(line)
+        if not m or len(line) > 160:
+            continue
+        start, end = _range_from_match(m.group(1), today)
+        if not start or start < today:
+            continue
+        # the second date of "Oct 27, 2026 - Oct 28, 2026" is part of the same range
+        tail = line[m.end():]
+        dm2 = re.match(rf"\s*[-–—]\s*({MONTHS}\.?\s+\d{{1,2}},?\s+\d{{4}})", tail, re.IGNORECASE)
+        if dm2:
+            end = _parse_date(dm2.group(1))
+        title = line[:m.start()].strip(" |-–—:")
+        if len(title) < 4:
+            for back in range(1, 4):
+                if i - back < 0:
+                    break
+                cand = lines[i - back]
+                if _NOISE_LINE.match(cand) or DATE_RE.search(cand) or len(cand) > 120 or len(cand) < 4:
+                    continue
+                title = cand
+                break
+        if len(title) < 4 or (title, start) in seen:
+            continue
+        seen.add((title, start))
+        after = " ".join(lines[i: i + 2])
+        city = _city_in(f"{title} {after}", cities)
+        out.append(Event(name=title, start=start, end=end, city=city, url=base_url,
+                         location_text=f"{title} {after}"))
+    return out
+
+
+def _page_event(soup: BeautifulSoup, url: str, today: date | None = None) -> list[Event]:
     """Fallback for single-event pages: title + first date in body text."""
     text = soup.get_text(" ", strip=True)
     m = DATE_RE.search(text)
@@ -206,17 +375,26 @@ def _page_event(soup: BeautifulSoup, url: str) -> list[Event]:
     )
     if not (m and title):
         return []
-    start, end = _range_from_match(m.group(1))
+    start, end = _range_from_match(m.group(1), today)
     if not start:
         return []
     return [Event(name=title.strip(), start=start, end=end, url=url, location_text=text[:2000])]
 
 
-def parse_events(html: str, url: str, settings: dict, source: dict, today: date | None = None) -> list[Event]:
+def parse_events(html: str, url: str, settings: dict, source: dict, today: date | None = None,
+                 markdown: bool = False) -> list[Event]:
     """Parse one page into filtered, tagged events."""
     today = today or date.today()
     soup = BeautifulSoup(html, "html.parser")
-    raw = _jsonld_events(soup, url) or _card_events(soup, url) or _page_event(soup, url)
+    raw = []
+    if markdown:
+        raw = _text_events(html, url, today, settings.get("known_cities", []))
+        html = ""
+    elif source.get("name_pattern") or (source.get("single") and source.get("name")):
+        raw = _named_date_events(BeautifulSoup(html, "html.parser"), source, url, today,
+                                 settings.get("known_cities", []))
+    raw = raw or ([] if markdown else (_jsonld_events(soup, url) or _embedded_json_events(soup, url)
+                  or _card_events(soup, url, today) or _page_event(soup, url, today)))
     page_text = soup.get_text(" ", strip=True)
 
     companies = settings["_companies"]
@@ -228,8 +406,17 @@ def parse_events(html: str, url: str, settings: dict, source: dict, today: date 
     for ev in raw:
         if not (today <= ev.start <= horizon):
             continue
+        if JUNK_NAME_RE.search(ev.name) or ev.name.startswith("http"):
+            if not source.get("name"):
+                continue
+        if source.get("name_with_heading"):  # listing of cities / editions, e.g. Microsoft AI Tour
+            ev.city = ev.city or ev.name
+            ev.name = f"{source['name_with_heading']} - {ev.name}"
+        if source.get("name") and not source.get("name_with_heading") and not source.get("name_pattern"):
+            # curated flagship pages: card/heading text is unreliable
+            ev.name = f"{source['name']} {ev.start.year}"
         # card/page fallbacks have little text of their own; look at the page too for tagging
-        extra = page_text[:5000] if len(raw) == 1 and not ev.host else ""
+        extra = page_text[:5000] if len(raw) == 1 and not ev.host and not source.get("name") else ""
         v = classify(ev.name, ev.host or source.get("host", ""), f"{ev.location_text} {ev.speakers}",
                      ev.city, ev.fmt, source, settings, extra)
         if not v.keep:
@@ -241,6 +428,8 @@ def parse_events(html: str, url: str, settings: dict, source: dict, today: date 
         if INVITE_RE.search(f"{ev.location_text} {extra}") and not ev.cost:
             ev.cost = "Invite only"
         results.append(ev)
+    if source.get("single") and results:  # one-event pages: keep the nearest upcoming date only
+        results = [min(results, key=lambda e: e.start)]
     return results
 
 
@@ -297,6 +486,7 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
     return Verdict(True, "ok", region or "Other", host, found, detect_role(tag_text, host, companies, found), virtual)
 
 
+JUNK_NAME_RE = re.compile(r"^(learn more|register|check out|what.?s next|read more|save the date|see you|sign up|view|explore)\b", re.IGNORECASE)
 INVITE_RE = re.compile(r"\b(invite[- ]only|by invitation|invitation only|application[- ]based)\b", re.IGNORECASE)
 
 

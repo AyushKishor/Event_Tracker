@@ -46,6 +46,25 @@ def fetch_rendered(url: str) -> str | None:
         return None
 
 
+def fetch_firecrawl(url: str) -> str | None:
+    """Last-resort fetch (markdown) for bot-protected pages (ServiceNow, Dell, ...). Needs FIRECRAWL_API_KEY."""
+    key = os.environ.get("FIRECRAWL_API_KEY")
+    if not key:
+        return None
+    try:
+        r = requests.post(
+            "https://api.firecrawl.dev/v1/scrape",
+            headers={"Authorization": f"Bearer {key}"},
+            json={"url": url, "formats": ["markdown"], "onlyMainContent": True, "waitFor": 3000},
+            timeout=90,
+        )
+        r.raise_for_status()
+        return (r.json().get("data") or {}).get("markdown")
+    except (requests.RequestException, ValueError) as e:
+        _log(f"  firecrawl failed: {url}: {e}")
+        return None
+
+
 def discover(config: dict) -> list[dict]:
     """Search the web for candidate event pages. Returns [{url, title, company}].
 
