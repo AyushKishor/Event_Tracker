@@ -465,7 +465,9 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
     if source.get("require_keyword") and not has_keyword(f"{name} {text}", settings["keywords"]):
         return Verdict(False, "source requires a channel/partner keyword")
 
-    virtual = fmt == "Virtual" or bool(VIRTUAL_RE.search(f"{name} {text}"))
+    # "virtual" in the page text only counts when no physical city is named (in-person events often offer a virtual pass)
+    virtual = fmt == "Virtual" or (bool(VIRTUAL_RE.search(f"{name} {text}"))
+                                   and not _city_in(f"{city} {text}", settings.get("known_cities", [])))
     region = detect_region(f"{city} {text}", regions)
     in_scope = bool(region) or (virtual and settings["include_virtual"])
     if virtual and not region:

@@ -14,8 +14,11 @@ ROOT = Path(__file__).parent.parent
 TODAY = date(2027, 1, 15)
 
 
-def cfg():
-    return load_config(ROOT / "config.yaml")
+def cfg(keep_out_of_region=True):
+    """Test config. Most tests exercise tagging with out-of-region events kept; the shipped default is strict."""
+    c = load_config(ROOT / "config.yaml")
+    c["keep_out_of_region"] = keep_out_of_region
+    return c
 
 
 def jsonld_page(events):
@@ -222,3 +225,19 @@ def test_small_community_events_are_dropped():
         ("Claude Touch Grass Summer Social", "Seattle", "Anthropic"),
     ]:
         assert not verdict(name, city, host).keep, name
+
+
+def test_default_config_is_strict_about_regions():
+    shipped = load_config(ROOT / "config.yaml")
+    assert shipped["keep_out_of_region"] is False
+    html = jsonld_page([
+        ev("Microsoft AI Tour - Toronto", "2027-02-10", "Toronto", "Microsoft"),
+        ev("Microsoft AI Tour - Utrecht", "2027-02-11", "Utrecht", "Microsoft"),
+        ev("Microsoft AI Tour - Seattle", "2027-02-12", "Seattle", "Microsoft"),
+        ev("Microsoft AI Tour - Houston", "2027-02-13", "Houston", "Microsoft"),
+        ev("Microsoft AI Tour - Mumbai", "2027-02-14", "Mumbai", "Microsoft"),
+        ev("Microsoft AI Tour - New York", "2027-02-15", "New York", "Microsoft"),
+        ev("Microsoft AI Tour - San Francisco", "2027-02-16", "San Francisco", "Microsoft"),
+    ])
+    out = extract.parse_events(html, "http://x", shipped, {"label": "t"}, TODAY)
+    assert [e.region for e in out] == ["Seattle", "Texas", "India", "New York", "Bay Area"]

@@ -2,8 +2,8 @@
 
 lookahead_months: 12       # only keep events starting within this window
 include_virtual: true      # keep virtual/online events regardless of city
-keep_out_of_region: true   # keep relevant events outside the 5 priority regions (flagships like
-                           # Next, re:Invent, Knowledge; channel conferences) with Region = "Other"
+keep_out_of_region: false  # only the 5 regions below (plus virtual if include_virtual). Set true to also keep
+                           # events elsewhere (e.g. re:Invent in Las Vegas) with Region = "Other"
 
 # Target accounts. Key = label written to "Target Account" / "Companies Attending".
 # The first six are the core partners; the rest come from the 2026 tracker.
@@ -102,6 +102,7 @@ regions:
     - Palo Alto
     - Oakland
     - Redwood City
+    - Moscone
     - South San Francisco
   Texas:
     - Texas
