@@ -40,6 +40,8 @@ class Event:
 
 def _pattern(alias: str) -> re.Pattern:
     """Word-boundary pattern. Aliases starting with ',' (e.g. ', NY') match as-is."""
+    if alias.endswith("*"):  # prefix match, e.g. "Knowledge 20*" -> "Knowledge 2026"
+        return re.compile(rf"(?<![\w]){re.escape(alias[:-1])}", re.IGNORECASE)
     esc = re.escape(alias)
     if alias.startswith(","):
         return re.compile(esc + r"\b")
@@ -226,36 +228,76 @@ def parse_events(html: str, url: str, settings: dict, source: dict, today: date 
     for ev in raw:
         if not (today <= ev.start <= horizon):
             continue
-        loc_text = ev.location_text
-        blob = f"{ev.name} {ev.host} {loc_text} {ev.speakers}"
         # card/page fallbacks have little text of their own; look at the page too for tagging
-        single_page = len(raw) == 1 and not ev.host
-        tag_text = f"{blob} {page_text[:5000]}" if single_page else blob
-
-        found = detect_companies(tag_text, companies)
-        host = ev.host or source.get("host", "")
-        if host and not found:
-            found = detect_companies(host, companies)
-        if source.get("require_company") and not found:
+        extra = page_text[:5000] if len(raw) == 1 and not ev.host else ""
+        v = classify(ev.name, ev.host or source.get("host", ""), f"{ev.location_text} {ev.speakers}",
+                     ev.city, ev.fmt, source, settings, extra)
+        if not v.keep:
             continue
-        if source.get("require_keyword") and not has_keyword(f"{ev.name} {loc_text}", keywords):
-            continue
-
-        virtual = ev.fmt == "Virtual" or bool(VIRTUAL_RE.search(f"{ev.name} {loc_text}"))
-        region = detect_region(f"{ev.city} {loc_text}", regions)
-        if not region:
-            if virtual and settings["include_virtual"]:
-                region = "Virtual"
-            else:
-                continue
-        ev.region = region
-        ev.host = host
-        ev.companies = found
-        ev.fmt = ev.fmt or ("Virtual" if virtual else "")
-        ev.role = detect_role(tag_text, host, companies, found)
+        ev.region, ev.host, ev.companies = v.region, v.host, v.companies
+        ev.fmt = ev.fmt or ("Virtual" if v.virtual else "")
+        ev.role = v.role
         ev.source = source.get("label", url)
+        if INVITE_RE.search(f"{ev.location_text} {extra}") and not ev.cost:
+            ev.cost = "Invite only"
         results.append(ev)
     return results
+
+
+@dataclass
+class Verdict:
+    keep: bool
+    reason: str
+    region: str = ""
+    host: str = ""
+    companies: list[str] = field(default_factory=list)
+    role: str = ""
+    virtual: bool = False
+
+
+def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict, settings: dict,
+             extra: str = "") -> Verdict:
+    """Decide whether an event belongs in the tracker and tag it.
+
+    Keep when it is in a priority region (or virtual) AND is relevant, or out of region but
+    clearly relevant: a tracked account, a channel/partner-ecosystem event, or an always_track name.
+    Relevant = tracked company, channel/partner keyword, always_track name, or (in region only)
+    a generic event word or tech topic word (e.g. "AI Summit").
+    """
+    companies, regions = settings["_companies"], settings["_regions"]
+    blob = f"{name} {host} {text}"
+    tag_text = f"{blob} {extra}"
+
+    found = detect_companies(tag_text, companies)
+    if host and not found:
+        found = detect_companies(host, companies)
+    if source.get("require_company") and not found:
+        return Verdict(False, "source requires a tracked company")
+    if source.get("require_keyword") and not has_keyword(f"{name} {text}", settings["keywords"]):
+        return Verdict(False, "source requires a channel/partner keyword")
+
+    virtual = fmt == "Virtual" or bool(VIRTUAL_RE.search(f"{name} {text}"))
+    region = detect_region(f"{city} {text}", regions)
+    in_scope = bool(region) or (virtual and settings["include_virtual"])
+    if virtual and not region:
+        region = "Virtual"
+
+    always = has_keyword(name, settings.get("always_track", []))
+    channel = has_keyword(name, settings["keywords"]) or has_keyword(name, settings.get("channel_events", []))
+    generic = has_keyword(name, settings.get("event_words", [])) or has_keyword(name, settings.get("topic_words", []))
+
+    if found or channel or always:
+        relevant = True
+    else:
+        relevant = in_scope and generic
+    if not relevant:
+        return Verdict(False, "no tracked company, channel keyword or tracked event name")
+    if not in_scope and not settings.get("keep_out_of_region", True):
+        return Verdict(False, "outside priority regions")
+    return Verdict(True, "ok", region or "Other", host, found, detect_role(tag_text, host, companies, found), virtual)
+
+
+INVITE_RE = re.compile(r"\b(invite[- ]only|by invitation|invitation only|application[- ]based)\b", re.IGNORECASE)
 
 
 def _add_months(d: date, months: int) -> date:

@@ -61,8 +61,9 @@ def test_parse_filters_region_window_and_company():
         ev("Past Partner Day", "2026-01-01", "Austin", "Salesforce"),        # past
     ])
     out = extract.parse_events(html, "http://x", cfg(), {"label": "t", "require_company": True}, TODAY)
-    assert [e.name for e in out] == ["AWS Partner Summit", "Oracle Partner Webinar"]
-    aws, oracle = out
+    assert [e.name for e in out] == ["AWS Partner Summit", "Google Cloud Partner Day", "Oracle Partner Webinar"]
+    aws, google, oracle = out
+    assert (google.region, google.companies) == ("Other", ["Google"])  # out-of-region flagship-style kept
     assert (aws.region, aws.companies, aws.role, aws.speakers) == ("Seattle", ["AWS"], "Host", "Jane Doe")
     assert oracle.region == "Virtual"
 
@@ -70,6 +71,7 @@ def test_parse_filters_region_window_and_company():
 def test_virtual_toggle():
     c = cfg()
     c["include_virtual"] = False
+    c["keep_out_of_region"] = False
     html = jsonld_page([ev("Oracle Webinar", "2027-03-12", "", "Oracle", mode="OnlineEventAttendanceMode")])
     assert extract.parse_events(html, "http://x", c, {"label": "t"}, TODAY) == []
 
@@ -110,3 +112,36 @@ def test_merge_idempotent_and_preserves_user_edits(tmp_path):
     assert row[workbook.IDX["Status"]] == "Attending"
     assert row[workbook.IDX["Notes"]] == "meet partner lead"
     assert load_workbook(path).sheetnames == ["Events"]  # single sheet only
+
+
+def verdict(name, city="", host="", fmt=""):
+    return extract.classify(name, host, "", city, fmt, {}, cfg())
+
+
+def test_events_from_2026_sheet_are_covered():
+    # (name, city, host) rows from the manually kept tracker that a narrow filter would drop
+    keep = [
+        ("Channel Partners Conference & Expo", "Las Vegas", ""),     # channel industry, out of region
+        ("PartnerTechX", "Phoenix", ""),
+        ("Catalyst by Partnership Leaders", "", ""),
+        ("CES 2026", "Las Vegas", ""),                                # general tech, always_track
+        ("TechCrunch Disrupt 2026", "San Francisco", ""),
+        ("Knowledge 2026", "Las Vegas", ""),                          # vendor flagship, out of region
+        ("Dreamforce 2026", "San Francisco", ""),
+        ("Snowflake Summit 2026", "Moscone Center San Francisco", ""),  # non-core target account
+        ("Dell Technologies World", "Las Vegas", ""),
+        ("Microsoft AI Tour", "Boston", ""),
+        ("AWS Marketplace Seller Forum", "Bellevue", ""),
+        ("Oracle AI World Tour", "Mumbai", ""),
+        ("Cypher 2026", "Bengaluru", ""),
+        ("AI Agents Seattle - August 2026", "Seattle", ""),           # local meetup, no company
+        ("Build with Gemini - Seattle", "Seattle", ""),
+        ("Games & AI Meetup / Co-hosted by AWS", "Seattle", ""),
+    ]
+    for name, city, host in keep:
+        assert verdict(name, city, host).keep, name
+
+
+def test_irrelevant_out_of_region_event_is_dropped():
+    assert not verdict("Local Pottery Fair", "Boise").keep
+    assert not verdict("Regional Dental Expo", "Boise").keep  # event word alone, out of region

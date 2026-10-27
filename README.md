@@ -20,6 +20,13 @@ python refresh.py [--no-discovery]
 python -m pytest
 ```
 
+## What gets kept
+Mirrors the manually kept 2026 tracker (`scripts/coverage_check.py <xlsx>` replays any such sheet through the filters):
+- Events naming a tracked account (the six core partners plus the other target accounts in `config.yaml`), anywhere in the world; Region is `Other` outside the five priority regions.
+- Channel / partnership-industry events (Channel Partners, MSP Summit, PartnerTechX, Catalyst, ...) and named general-tech events (CES, TechCrunch Disrupt, ...).
+- In the five priority regions or virtual: local summits/meetups with a tech topic or event word, even with no company named (e.g. "AI Agents Seattle").
+- `python scripts/import_legacy.py <old.xlsx>` loads the old sheet into `tracker.xlsx` (already done for the 2026 sheet).
+
 ## Limits
 - Extraction uses schema.org Event data first, then a card/date heuristic. Pages that show neither need a
   custom parser or a better URL; sources returning nothing are listed at the end of each run.

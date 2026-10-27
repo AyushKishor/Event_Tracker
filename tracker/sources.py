@@ -60,7 +60,7 @@ def discover(config: dict) -> list[dict]:
         return []
 
     found: dict[str, dict] = {}
-    for company in config["companies"]:
+    for company in d.get("companies") or list(config["companies"]):
         for template in d.get("queries", []):
             q = template.format(company=company, year=date.today().year)
             try:

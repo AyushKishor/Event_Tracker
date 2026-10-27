@@ -2,14 +2,20 @@
 
 lookahead_months: 6        # only keep events starting within this window
 include_virtual: true      # keep virtual/online events regardless of city
+keep_out_of_region: true   # keep relevant events outside the 5 priority regions (flagships like
+                           # Next, re:Invent, Knowledge; channel conferences) with Region = "Other"
 
-# Companies to flag. Key = label written to the "Companies Attending" column.
+# Target accounts. Key = label written to "Target Account" / "Companies Attending".
+# The first six are the core partners; the rest come from the 2026 tracker.
 companies:
   Microsoft:
     - Microsoft
     - MSFT
     - Azure
     - Dynamics 365
+    - Power CAT
+    - Power Platform
+    - Copilot
   AWS:
     - AWS
     - Amazon Web Services
@@ -18,17 +24,50 @@ companies:
     - Google Cloud
     - Google
     - GCP
+    - Gemini
   Salesforce:
     - Salesforce
     - Dreamforce
     - Slack
+    - Agentforce
   ServiceNow:
     - ServiceNow
   Oracle:
     - Oracle
     - OCI
+  Snowflake: [Snowflake]
+  MongoDB: [MongoDB]
+  Databricks: [Databricks]
+  Datadog: [Datadog, "DASH 20*"]
+  Dynatrace: [Dynatrace]
+  NetApp: [NetApp, INSIGHT Xtra]
+  Commvault: [Commvault]
+  Nutanix: [Nutanix]
+  Pure Storage: [Pure Storage]
+  Cohesity: [Cohesity]
+  NVIDIA: [NVIDIA]
+  SAP: [SAP, SAP Concur, Sapphire]
+  IBM: [IBM]
+  Cisco: [Cisco]
+  Dell: [Dell, Dell Technologies]
+  VMware: [VMware, Broadcom]
+  Fortinet: [Fortinet]
+  Okta: [Okta]
+  Cloudflare: [Cloudflare]
+  Adobe: [Adobe]
+  Workday: [Workday]
+  Atlassian: [Atlassian, "Team 2*"]
+  Zendesk: [Zendesk]
+  Docusign: [Docusign]
+  Qualtrics: [Qualtrics, "Experience Management Summit"]
+  Intuit: [Intuit]
+  Informatica: [Informatica]
+  Acumatica: [Acumatica]
+  Blue Yonder: [Blue Yonder]
+  OpenAI: [OpenAI]
+  Anthropic: [Anthropic, Claude]
 
-# Regions to keep. Key = value written to the "Region" column.
+# Priority regions. Key = value written to the "Region" column; anything else is "Other".
 regions:
   New York:
     - New York
@@ -88,11 +127,70 @@ keywords:
   - reseller
   - MSP
   - ecosystem
+  - partnership
+  - partnerships
+  - alliances
+  - "channel partners"
+  - "partner summit"
+  - "partner forum"
+  - "partner day"
+  - "seller forum"
+  - "customer edge"
+
+# Channel / partnership-industry events that are always relevant (name match).
+channel_events:
+  - "Channel Partners"
+  - "MSP Summit"
+  - "Catalyst by Partnership Leaders"
+  - "PartnerTechX"
+  - "Xchange"
+  - "Channel Pro"
+  - "Channel Futures"
+  - "Channel Focus"
+  - "CRN"
+  - "Partnership Leaders"
+  - "Crossbeam"
+
+# General tech events to always track by name (kept even outside priority regions).
+always_track:
+  - "CES"
+  - "NRF Big Show"
+  - "TechCrunch Disrupt"
+  - "SaaStr"
+  - "AI4"
+  - "Human X"
+  - "Dubai AI Festival"
+  - "AI Impact Summit"
+  - "Cypher"
+  - "Seattle AI Week"
+  - "Cloud Summit"
+  - "GTC"
+  - "Dreamforce"
+  - "re:Invent"
+  - "Google Cloud Next"
+  - "Knowledge 20*"
+  - "Ignite"
+  - "AI World"
+  - "AI Tour"
+  - "World Forum"
+  - "Accelerate"
+  - "TechCon 365"
+  - "TechMentor"
+  - "SecureWorld"
+  - "CIO Community"
+  - "Evanta"
+  - "Data Community Summit"
+
+# Generic tech events: kept when in a priority region and the name has an event word or a topic word
+# (catches local meetups/summits like "AI Agents Seattle", "ElevateIT Seattle Technology Summit").
+event_words: [summit, leadership, investor, marketing, enablement, social, conference, expo, forum, meetup, symposium, hackathon, hack, social, tour, week, congress, "demo night", conclave]
+topic_words: [AI, agent, agents, agentic, cloud, data, cyber, cybersecurity, security, SaaS, tech, technology, "zero trust", gemini, quantum, enterprise, CIO, CISO, IT]
 
 # Discovery searches (needs BRAVE_API_KEY). {company} is substituted per company.
 discovery:
   enabled: true
   results_per_query: 10
+  companies: [Microsoft, AWS, Google Cloud, Salesforce, ServiceNow, Oracle]  # keeps search volume low
   queries:
     - "{company} partner summit {year}"
     - "{company} channel partner event {year}"
