@@ -10,6 +10,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from .extract import Event
 
@@ -124,10 +125,28 @@ def write(path: Path, rows: list[list]) -> None:
             cell.font = Font(color="0563C1", underline="single")
 
     ws.freeze_panes = "B2"
-    ws.auto_filter.ref = f"A1:{get_column_letter(len(HEADERS))}{max(len(rows) + 1, 2)}"
+    # A real Excel Table (own filters + banding). Power Query / Excel for the web read typed columns from it.
+    table = Table(displayName="Events", ref=f"A1:{get_column_letter(len(HEADERS))}{max(len(rows) + 1, 2)}")
+    table.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2", showRowStripes=True)
+    ws.add_table(table)
     status_col = get_column_letter(IDX["Status"] + 1)
     dv = DataValidation(type="list", formula1='"' + ",".join(STATUSES) + '"', allow_blank=True)
     dv.add(f"{status_col}2:{status_col}{MAX_ROWS}")
     ws.add_data_validation(dv)
     path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(path)
+    write_csv(path.with_suffix(".csv"), rows)
+
+
+def write_csv(path: Path, rows: list[list]) -> None:
+    """Same data as ISO-dated CSV: Power Query / Power BI detect the date columns reliably from this."""
+    import csv
+
+    def cell(v):
+        d = _to_date(v)
+        return d.isoformat() if d else ("" if v is None else v)
+
+    with path.open("w", newline="", encoding="utf-8-sig") as f:
+        w = csv.writer(f)
+        w.writerow(HEADERS)
+        w.writerows([[cell(v) for v in r] for r in rows])
