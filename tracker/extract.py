@@ -448,10 +448,10 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
              extra: str = "") -> Verdict:
     """Decide whether an event belongs in the tracker and tag it.
 
-    Keep when it is in a priority region (or virtual) AND is relevant, or out of region but
-    clearly relevant: a tracked account, a channel/partner-ecosystem event, or an always_track name.
-    Relevant = tracked company, channel/partner keyword, always_track name, or (in region only)
-    a generic event word or tech topic word (e.g. "AI Summit").
+    Keep when the event is a flagship / channel-industry event (always_track, channel_events), is hosted
+    by a tracked company, has a tracked company in its name, or mentions one alongside a partner/channel keyword.
+    Community meetups (skip_words) are dropped. Events outside the priority regions are kept
+    (Region = "Other") unless keep_out_of_region is false.
     """
     companies, regions = settings["_companies"], settings["_regions"]
     blob = f"{name} {host} {text}"
@@ -472,17 +472,27 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
         region = "Virtual"
 
     always = has_keyword(name, settings.get("always_track", []))
-    channel = has_keyword(name, settings["keywords"]) or has_keyword(name, settings.get("channel_events", []))
-    generic = has_keyword(name, settings.get("event_words", [])) or has_keyword(name, settings.get("topic_words", []))
+    channel_event = has_keyword(name, settings.get("channel_events", []))
+    first_host = re.split(r",| & | and | x | with ", host or "")[0]  # lead organiser; co-hosts don't make it a company event
+    host_company = bool(first_host) and bool(detect_companies(first_host, companies))
+    partner_kw = has_keyword(f"{name} {text}", settings["keywords"])
+    small = has_keyword(f"{name} {host}", settings.get("skip_words", []))
 
-    if found or channel or always:
+    # Company-organised or partnership events only: community meetups, user groups and mixers are out
+    # unless the name is a tracked flagship or a known channel-industry event.
+    if always or channel_event:
         relevant = True
+    elif small:
+        return Verdict(False, "community meetup / small social event")
     else:
-        relevant = in_scope and generic
+        relevant = host_company or bool(detect_companies(name, companies)) or (bool(found) and partner_kw)
     if not relevant:
-        return Verdict(False, "no tracked company, channel keyword or tracked event name")
+        return Verdict(False, "not hosted by a tracked company and not a partner event")
     if not in_scope and not settings.get("keep_out_of_region", True):
         return Verdict(False, "outside priority regions")
+    if not host:  # no organiser on the page: a company named in the event title is the host
+        named = detect_companies(name, companies)
+        host = named[0] if named else ""
     return Verdict(True, "ok", region or "Other", host, found, detect_role(tag_text, host, companies, found), virtual)
 
 

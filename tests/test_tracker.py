@@ -134,9 +134,8 @@ def test_events_from_2026_sheet_are_covered():
         ("AWS Marketplace Seller Forum", "Bellevue", ""),
         ("Oracle AI World Tour", "Mumbai", ""),
         ("Cypher 2026", "Bengaluru", ""),
-        ("AI Agents Seattle - August 2026", "Seattle", ""),           # local meetup, no company
-        ("Build with Gemini - Seattle", "Seattle", ""),
-        ("Games & AI Meetup / Co-hosted by AWS", "Seattle", ""),
+        ("Build with Gemini - Seattle", "Seattle", ""),               # Google-run event
+        ("SaaSify Partner Central Agentic Workshop", "Seattle", "AWS"),
     ]
     for name, city, host in keep:
         assert verdict(name, city, host).keep, name
@@ -211,3 +210,15 @@ def test_prefix_dedupe_and_junk_names(tmp_path):
     assert workbook.merge(path, [a, b], TODAY) == (1, 1)
     html = jsonld_page([ev("Learn More & Register", "2027-03-10", "Seattle", "AWS")])
     assert extract.parse_events(html, "http://x", cfg(), {"label": "t"}, TODAY) == []
+
+
+def test_small_community_events_are_dropped():
+    for name, city, host in [
+        ("AI Agents Seattle - August 2026", "Seattle", ""),               # no company at all
+        ("Games & AI Meetup / Co-hosted by AWS", "Seattle", ""),          # meetup
+        ("AWS User Group Seattle", "Seattle", "AWS User Group"),
+        ("Seattle Tech Mixer 2026", "Seattle", ""),
+        ("San Francisco Syntax Meetup", "San Francisco", "Syntax FM"),
+        ("Claude Touch Grass Summer Social", "Seattle", "Anthropic"),
+    ]:
+        assert not verdict(name, city, host).keep, name

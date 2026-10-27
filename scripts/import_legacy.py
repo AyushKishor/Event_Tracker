@@ -53,7 +53,7 @@ def main():
     args = ap.parse_args()
     cfg = load_config(ROOT / "config.yaml")
 
-    events, skipped = [], []
+    events, skipped, dropped = [], [], []
     for ws in load_workbook(args.legacy, data_only=True):
         hdr = [c.value for c in ws[1]]
         if "Event name" not in hdr:
@@ -69,10 +69,15 @@ def main():
                 continue
             city = clean(row.get("City"))
             acct = clean(row.get("Target Account"))
+            v = extract.classify(name, acct if acct != "-" else "", "", city, "", {}, cfg)
+            if not v.keep:  # same relevance rules as the scraper: no small community meetups
+                dropped.append(name)
+                continue
             found = extract.detect_companies(f"{name} {acct}", cfg["_companies"])
             link = clean(row.get("Link"))
             events.append(extract.Event(
                 name=name, start=start, end=end, city=city,
+                host=v.host or (acct if acct not in ("-", "") and "/" not in acct else ""),
                 region=extract.detect_region(city, cfg["_regions"]) or "Other",
                 fmt=FMT.get(clean(row.get("Virtual/In-person")).lower(), ""),
                 companies=found or ([acct] if acct and "/" not in acct else []),
@@ -82,6 +87,7 @@ def main():
             ))
     added, total = workbook.merge(args.output, events)
     print(f"Imported {added} new event(s); {total} total. Skipped (no usable date): {skipped}")
+    print(f"Dropped as small/not company-organised ({len(dropped)}): {dropped}")
 
 
 if __name__ == "__main__":

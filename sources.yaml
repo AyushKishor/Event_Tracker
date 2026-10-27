@@ -44,9 +44,9 @@ sources:
   # ---- Channel / partnership industry ----
   - {label: Channel Partners Conference, url: "https://channelpartnersconference.com/", name: "Channel Partners Conference & Expo", single: true}
   - {label: MSP Summit / events calendar, url: "https://themspsummit.com/events-calendar/"}
-  - {label: Channel Pro Network, url: "https://events.channelpronetwork.com/"}
-  - {label: PartnerTechX, url: "https://channelfocuscommunity.net/partnertechx-2026/", name: "PartnerTechX", single: true}
-  - {label: Xchange (The Channel Co), url: "https://event.thechannelco.com/xchange-march/", name: "Xchange", single: true}
+  - {label: Channel Pro Network, url: "https://events.channelpronetwork.com/", host: "ChannelPro Network"}
+  - {label: PartnerTechX, url: "https://channelfocuscommunity.net/partnertechx-2026/", name: "PartnerTechX", single: true, host: "Channel Focus Community"}
+  - {label: Xchange (The Channel Co), url: "https://event.thechannelco.com/xchange-march/", name: "Xchange", single: true, host: "The Channel Company"}
 
   # ---- Curated lists / regional (India, Seattle) ----
   - {label: TechCon 365 Seattle, url: "https://www.techcon365.com/Seattle/", host: Microsoft, name: "TechCon 365, DATACON & PWRCON Seattle", single: true}

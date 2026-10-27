@@ -152,6 +152,7 @@ channel_events:
   - "PartnerTechX"
   - "Xchange"
   - "Channel Pro"
+  - "ChannelPro"
   - "Channel Futures"
   - "Channel Focus"
   - "CRN"
@@ -188,10 +189,9 @@ always_track:
   - "Evanta"
   - "Data Community Summit"
 
-# Generic tech events: kept when in a priority region and the name has an event word or a topic word
-# (catches local meetups/summits like "AI Agents Seattle", "ElevateIT Seattle Technology Summit").
-event_words: [summit, leadership, investor, marketing, enablement, social, conference, expo, forum, meetup, symposium, hackathon, hack, social, tour, week, congress, "demo night", conclave]
-topic_words: [AI, agent, agents, agentic, cloud, data, cyber, cybersecurity, security, SaaS, tech, technology, "zero trust", gemini, quantum, enterprise, CIO, CISO, IT]
+# Small community events are skipped (unless the name is an always_track / channel_events name).
+skip_words: [meetup, "user group", "happy hour", mixer, networking, cocktail, "study group", "study jam", "hack night",
+  coffee, brunch, "office hours", "touch grass", "demo night", hackathon, devfest, "bob tv", "w/", community, student, university, reactor, "SBG", "chapter"]
 
 # Discovery searches (needs BRAVE_API_KEY). {company} is substituted per company.
 discovery:
