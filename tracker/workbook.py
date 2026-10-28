@@ -9,7 +9,6 @@ from pathlib import Path
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from .extract import Event
@@ -19,12 +18,9 @@ COLUMNS = [
     ("Name", 42), ("Date", 13), ("End Date", 13), ("Organiser/Host", 22), ("Region", 12),
     ("City", 18), ("Format", 11), ("Companies Attending", 28), ("Role", 18),
     ("Named Speakers", 30), ("Cost", 10), ("URL", 45), ("Source", 26),
-    ("Date Added", 12), ("Status", 12), ("Notes", 30),
 ]
 HEADERS = [c for c, _ in COLUMNS]
 IDX = {h: i for i, h in enumerate(HEADERS)}
-STATUSES = ["New", "Attending", "Skip"]
-MAX_ROWS = 5000
 
 
 def event_key(name: str, start: date, city: str) -> str:
@@ -56,11 +52,10 @@ def row_key(row: list) -> str | None:
     return event_key(row[IDX["Name"]], start, row[IDX["City"]]) if start and row[IDX["Name"]] else None
 
 
-def event_to_row(ev: Event, added: date) -> list:
+def event_to_row(ev: Event) -> list:
     return [
         ev.name, ev.start, ev.end, ev.host, ev.region, ev.city, ev.fmt,
         ", ".join(ev.companies), ev.role, ev.speakers, ev.cost, ev.url, ev.source,
-        added, "New", "",
     ]
 
 
@@ -92,7 +87,7 @@ def merge(path: Path, events: list[Event], today: date | None = None) -> tuple[i
             continue
         seen.add(k)
         by_date.append(sig)
-        rows.append(event_to_row(ev, today))
+        rows.append(event_to_row(ev))
         added += 1
     rows.sort(key=lambda r: (_to_date(r[IDX["Date"]]) or date.max, str(r[IDX["Name"]] or "")))
     write(path, rows)
@@ -114,7 +109,7 @@ def write(path: Path, rows: list[list]) -> None:
         c.fill = head_fill
         c.alignment = Alignment(vertical="center", wrap_text=True)
         ws.column_dimensions[get_column_letter(i)].width = width
-    for col in ("Date", "End Date", "Date Added"):
+    for col in ("Date", "End Date"):
         for cell in ws[get_column_letter(IDX[col] + 1)][1:]:
             cell.number_format = "yyyy-mm-dd"
     url_col = IDX["URL"] + 1
@@ -129,10 +124,6 @@ def write(path: Path, rows: list[list]) -> None:
     table = Table(displayName="Events", ref=f"A1:{get_column_letter(len(HEADERS))}{max(len(rows) + 1, 2)}")
     table.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2", showRowStripes=True)
     ws.add_table(table)
-    status_col = get_column_letter(IDX["Status"] + 1)
-    dv = DataValidation(type="list", formula1='"' + ",".join(STATUSES) + '"', allow_blank=True)
-    dv.add(f"{status_col}2:{status_col}{MAX_ROWS}")
-    ws.add_data_validation(dv)
     path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(path)
     write_csv(path.with_suffix(".csv"), rows)

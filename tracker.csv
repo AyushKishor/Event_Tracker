@@ -1,67 +1,68 @@
-﻿Name,Date,End Date,Organiser/Host,Region,City,Format,Companies Attending,Role,Named Speakers,Cost,URL,Source,Date Added,Status,Notes
-Agentforce World Tour Mumbai,2025-04-15,,Salesforce,India,Mumbai,Virtual,Salesforce,,,Free,https://www.salesforce.com/in/form/event/awt-mumbai25/?d=pb,Legacy tracker 2026,2026-10-27,New,
-NRF Big Show,2026-01-11,2026-01-13,,New York,New York,In-person,,,,,https://nrfbigshow.nrf.com/,Legacy tracker 2026,2026-10-27,New,
-MongoDB.local,2026-01-15,,MongoDB,Bay Area,San Francisco,In-person,MongoDB,,,50,https://www.mongodb.com/events/mongodb-local/san-francisco?tck=pathfactory,Legacy tracker 2026,2026-10-27,New,
-Microsoft AI Tour,2026-01-21,,Microsoft,New York,New York,In-person,Microsoft,,,Free,https://aitour.microsoft.com/flow/microsoft/nyc26/landingpage/page/cityhome,Legacy tracker 2026,2026-10-27,New,
-AI Conclave Bengaluru: Agentic AI & Data Edition,2026-01-22,,AWS,India,Bengaluru,In-person,AWS,,,Free,https://aws.amazon.com/events/ai_conclave/,Legacy tracker 2026,2026-10-27,New,
-Acumatica Summit 2026,2026-01-25,2026-01-28,Acumatica,Seattle,Seattle,In-person,Acumatica,,,Not mentioned,https://summit.acumatica.com/?utm_source=vendelux.com,Legacy tracker 2026,2026-10-27,New,
-Oracle AI World Tour,2026-02-10,,Oracle,India,Mumbai,In-person,Oracle,,,Not mentioned,https://www.oracle.com/in/ai-world-tour/?source=:ow:es:lv::::RC_WWMK250424P00040:OAIWT_OCOM_EventSearchListing&intcmp=:ow:es:lv::::RC_WWMK250424P00040:OAIWT_OCOM_EventSearchListing,Legacy tracker 2026,2026-10-27,New,
-AI Impact Summit,2026-02-16,2026-02-20,,India,New Delhi,In-person,,,,,https://kripeshadwani.com/best-tech-events-in-india/#ai-impact-summit-2026,Legacy tracker 2026,2026-10-27,New,
-INSIGHT Xtra,2026-02-17,,NetApp,India,Mumbai,In-person,NetApp,,,Not mentioned,https://www.netapp.com/company/events/insight-xtra-mumbai/,Legacy tracker 2026,2026-10-27,New,
-Cloud Summit 26,2026-02-18,,,India,Mumbai,In-person,,,,Not mentioned,https://cio.economictimes.indiatimes.com/cloud-summit,Legacy tracker 2026,2026-10-27,New,
-Commvault SHIFT,2026-02-27,,Commvault,India,Mumbai,In-person,Commvault,,,Not mentioned,https://discover.commvault.com/event-shift-live-mumbai-registration.html?_gl=1*akggyi*_gcl_au*MTM2MDExOTE0Mi4xNzY0NjgyMjM0*_ga*NDA1MjgzNzkwLjE3NjQ2ODIyMzQ.*_ga_M2TFPKFW4N*czE3NjU0NTg4MzEkbzIkZzEkdDE3NjU0NTg4NzMkajE4JGwwJGgw,Legacy tracker 2026,2026-10-27,New,
-NVIDIA GTC 2026,2026-03-16,2026-03-19,Nvidia,Bay Area,San Jose,In-person,NVIDIA,,,Not mentioned,https://www.nvidia.com/gtc/events/,Legacy tracker 2026,2026-10-27,New,
-The Experience Management Summit,2026-03-17,2026-03-19,Qualtrics,Seattle,Seattle,In-person,Qualtrics,,,1299,https://www.qualtrics.com/x4summit/?utm_source=vendelux.com,Legacy tracker 2026,2026-10-27,New,
-Human X,2026-04-06,2026-04-09,,Bay Area,San Francisco,In-person,,,,2650,https://humanx.co/,Legacy tracker 2026,2026-10-27,New,
-Oracle Customer Edge Summit,2026-04-12,2026-04-14,Oracle,Texas,Austin,In-person,Oracle,,,875,https://www.oracle.com/customer-edge-summit/,Legacy tracker 2026,2026-10-27,New,
-SaaStr AI: ANNUAL x AI Summit,2026-05-12,2026-05-14,,Bay Area,San Francisco,In-person,,,,Not mentioned,https://www.saastrannual.com/,Legacy tracker 2026,2026-10-27,New,
-SAP Now AI Tour,2026-05-19,,SAP,India,Mumbai,In-person,SAP,,,Not mentioned,https://www.sap.com/india/events/sapnow.html#apac,Legacy tracker 2026,2026-10-27,New,
-Docusign Momentum 26,2026-05-20,2026-05-21,Docusign,New York,New York City,In-person,Docusign,,,Not mentioned,https://momentum.docusign.com/?c_2080266=https%3A%2F%2Fwww.bing.com%2F,Legacy tracker 2026,2026-10-27,New,
-Snowflake Summit 2026,2026-06-01,2026-06-04,Snowflake,Bay Area,Moscone Center San Francisco,In-person,Snowflake,,,,https://www.snowflake.com/en/summit/,Legacy tracker 2026,2026-10-27,New,
-DASH,2026-06-09,2026-06-10,Datadog,New York,New York City,In-person,Datadog,,,Not mentioned,https://www.dashcon.io/,Legacy tracker 2026,2026-10-27,New,
-Databricks Data+AI Summit,2026-06-15,2026-06-18,Databricks,Bay Area,San Francisco,In-person,Databricks,,,,https://www.databricks.com/dataaisummit,Legacy tracker 2026,2026-10-27,New,
-TechMentor & Cybersecurity Live! @ Microsoft HQ,2026-08-03,2026-08-07,Microsoft,Seattle,Redmond,In-person,Microsoft,,,Not publicly listed,,Legacy tracker 2026,2026-10-27,New,
-AI Agents Seattle – August 2026,2026-08-11,,AI / Claude ecosystem,Seattle,Seattle,In-person,Anthropic,,,Not publicly listed,,Legacy tracker 2026,2026-10-27,New,
-"AI Agents in the Wild: Building, Scaling & Deploying in Production",2026-08-12,,Salesforce / AWS,Seattle,Bellevue,In-person,"AWS, Salesforce",,,Not publicly listed,,Legacy tracker 2026,2026-10-27,New,
-NVIDIA Spark Hack: Seattle,2026-08-14,,NVIDIA,Seattle,Seattle,In-person,NVIDIA,,,No public fee listed; approval required,,Legacy tracker 2026,2026-10-27,New,
-ISV Partner Event,2026-08-20,,ServiceNow,Seattle,Seattle,In-person,ServiceNow,,,Free,,Legacy tracker 2026,2026-10-27,New,
-"MICROSOFT 365, DATA & POWER PLATFORM CONFERENCES",2026-08-24,2026-08-28,Microsoft,Seattle,Seattle,In-person,Microsoft,,,1595-2695,https://www.techcon365.com/Seattle/,Legacy tracker 2026,2026-10-27,New,
-"TechCon 365, DATACON & PWRCON Seattle 2026",2026-08-24,2026-08-28,Microsoft,Seattle,Seattle,In-person,Microsoft,,,"$1,825–$2,995 currently, depending on pass",,Legacy tracker 2026,2026-10-27,New,
-AWS Marketplace Seller Forum,2026-09-01,2026-09-02,AWS,Seattle,Bellevue,In-person,AWS,,,Invite only event,https://aws.amazon.com/marketplace/resources/events/seller-conference,Legacy tracker 2026,2026-10-27,New,
-"AI, Zero Trust & Enterprise Resilience in the Age of Continuous Disruption",2026-09-10,,Intuit / Oracle,Seattle,Bellevue,In-person,"Oracle, Intuit",,,Not publicly listed,,Legacy tracker 2026,2026-10-27,New,
-CISOMeet Seattle,2026-09-10,,SAP,Seattle,Bellevue,In-person,SAP,,,No public fee listed; CISO/Sr. InfoSec qualification,,Legacy tracker 2026,2026-10-27,New,
-World Forum,2026-09-10,,ServiceNow,New York,New York,In-person,ServiceNow,,,,https://www.servicenow.com/events/world-forum.html,Legacy tracker 2026,2026-10-27,New,
-Dreamforce 2026,2026-09-15,2026-09-17,Salesforce,Bay Area,San Francisco,In-person,Salesforce,,,,https://www.salesforce.com/dreamforce/?d=pb,Legacy tracker 2026,2026-10-27,New,
-Amazon Accelerate 2026,2026-09-22,2026-09-24,Amazon / AWS ecosystem,Seattle,Seattle,In-person,AWS,,,Price not publicly surfaced; $100 early-bird discount through Aug 8,,Legacy tracker 2026,2026-10-27,New,
-IA40 Summit 2026,2026-09-29,2026-09-30,AI ecosystem / Microsoft / AWS / Databricks,Seattle,Seattle,In-person,"Microsoft, AWS, Databricks",,,Invite-only / no public fee,,Legacy tracker 2026,2026-10-27,New,
-Build with Gemini – Seattle,2026-09-30,,Google Cloud,Seattle,Seattle,In-person,Google,,,Free / complimentary,,Legacy tracker 2026,2026-10-27,New,
-Official Cybersecurity Summit – Seattle/Bellevue,2026-10-01,,IBM / Cybersecurity ecosystem,Seattle,Bellevue,In-person,IBM,,,$250 standard admission,,Legacy tracker 2026,2026-10-27,New,
-Cypher 2026,2026-10-06,2026-10-08,,India,Bengaluru,In-person,,,,7000 (INR),https://kripeshadwani.com/best-tech-events-in-india/#ai-impact-summit-2026,Legacy tracker 2026,2026-10-27,New,
-World Forum,2026-10-06,,ServiceNow,India,Mumbai,In-person,ServiceNow,,,,https://www.servicenow.com/events/world-forum.html,Legacy tracker 2026,2026-10-27,New,
-TechCrunch Disrupt 2026,2026-10-13,2026-10-15,,Bay Area,San Francisco,In-person,,,,Not mentioned,https://techcrunch.com/events/tc-disrupt-2026/,Legacy tracker 2026,2026-10-27,New,
-ElevateIT Seattle Technology Summit 2026,2026-10-14,,Nutanix / Enterprise IT ecosystem,Seattle,Seattle,In-person,Nutanix,,,Not publicly listed,,Legacy tracker 2026,2026-10-27,New,
-Cloudflare Connect,2026-10-19,2026-10-22,Cloudflare,Bay Area,San Francisco,In-person,Cloudflare,,,,https://www.cloudflare.com/en-gb/lp/cloudflare-connect-2026/,Legacy tracker 2026,2026-10-27,New,
-Seattle AI Week 2026,2026-10-26,2026-10-30,Multi-vendor / AI ecosystem,Seattle,Seattle,In-person,,,,Varies by event; flagship Summit EB $175,,Legacy tracker 2026,2026-10-27,New,
-Agents in NYC,2026-10-28,2026-10-28,"Datadog, Albert Zhao, Datadog",New York,New York,In-person,Datadog,Host,,,https://luma.com/agentsinnyc,Luma NYC,2026-10-27,New,
-SecureWorld Seattle 2026,2026-11-04,2026-11-05,OpenAI / Google Cloud / Cohesity / Blue Yonder,Seattle,Bellevue,In-person,"Google, Cohesity, Blue Yonder, OpenAI",,,Multiple pass types; current price not publicly surfaced in indexed page,,Legacy tracker 2026,2026-10-27,New,
-PASS Data Community Summit West,2026-11-09,2026-11-11,Data / Cloud ecosystem,Seattle,Seattle,In-person,,,,"$1,790–$1,990 for published 2-day ticket",,Legacy tracker 2026,2026-10-27,New,
-SaaSify Partner Central Agentic Workshop,2026-11-12,2026-11-12,,Seattle,Seattle,In-person,AWS,,,,https://www.eventbrite.com/e/saasify-partner-central-agentic-workshop-tickets-2003698327636,Eventbrite Seattle - AWS/Microsoft/Google,2026-10-27,New,
-Microsoft Ignite 2026,2026-11-17,2026-11-20,Microsoft,Bay Area,San Francisco,In-person,Microsoft,,,,https://ignite.microsoft.com/en-US/home,Legacy tracker 2026,2026-10-27,New,
-SaaSify Partner Central Agentic Workshop,2026-11-17,2026-11-17,,Bay Area,San Francisco,In-person,AWS,,,,https://www.eventbrite.com/e/saasify-partner-central-agentic-workshop-tickets-2003695905391,Eventbrite SF - cloud partner,2026-10-27,New,
-Cloudflare Immerse,2026-11-20,,Cloudflare,Bay Area,Bay Area,In-person,Cloudflare,,,,https://fieldmarketing.www.cloudflare.com/cloudflareimmersebayarea?_gl=1*1ge1j1x*_gcl_au*MjMxOTM0MjE4LjE3NTkzNjYwMjI.*_ga*ZmI3OTU3NjUtZDkyOC00M2I3LWJiOGYtNzQ5ZjJlZGUxYWFm*_ga_SQCRB0TXZW*czE3NjU0NjEwMDIkbzMkZzEkdDE3NjU0NjEwNTkkajMkbDAkaDAkZHVGb1hkWDJpQmU2OUExYjJSSl92c2xTbkxWQURDZTlUSWc.,Legacy tracker 2026,2026-10-27,New,
-Gartner / Evanta Seattle CIO Community Executive Summit,2026-12-01,,Google Cloud / Cloudflare / Dynatrace,Seattle,Seattle,In-person,"Google, Dynatrace, Cloudflare",,,Invite/application-based; no public attendee fee,,Legacy tracker 2026,2026-10-27,New,
-MSP Summit: AI Symposium,2026-12-09,,,New York,,,Microsoft,,,,https://themspsummit.com/msp-summit-ai-symposium/,MSP Summit / events calendar,2026-10-27,New,
-Microsoft AI Tour - Seattle,2026-12-09,,Microsoft,Seattle,Seattle,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/seattle27/citylanding/page/cityhome,Microsoft AI Tour,2026-10-27,New,
-Microsoft AI Tour - Mumbai,2027-02-10,,Microsoft,India,Mumbai,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymemumbai/page/notifyme,Microsoft AI Tour,2026-10-27,New,
-Microsoft AI Tour - Bengaluru,2027-02-15,,Microsoft,India,Bengaluru,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymebengaluru/page/notifyme,Microsoft AI Tour,2026-10-27,New,
-ChannelPro DEEP DIVE: Cybersecurity in the Age of AI,2027-02-16,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-cybersecurity-in-the-age-of-ai/,Channel Pro Network,2026-10-27,New,
-Xchange 2027,2027-03-07,2027-03-09,The Channel Company,Texas,,,,,,,https://event.thechannelco.com/xchange-march/,Xchange (The Channel Co),2026-10-27,New,
-Microsoft AI Tour - New York City,2027-03-18,,Microsoft,New York,New York City,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymenyc/page/notifyme,Microsoft AI Tour,2026-10-27,New,
-ChannelPro DEEP DIVE: Perfecting Your Tool Stack,2027-04-06,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-perfecting-your-tool-stack/,Channel Pro Network,2026-10-27,New,
-ChannelPro DEEP DIVE: The Most Profitable Cybersecurity Services in 2027,2027-06-01,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-the-most-profitable-cybersecurity-services-in-2027/,Channel Pro Network,2026-10-27,New,
-Microsoft AI Tour - Houston,2027-06-02,,Microsoft,Texas,Houston,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymehouston/page/notifyme,Microsoft AI Tour,2026-10-27,New,
-Databricks Data+AI Summit 2027,2027-06-21,2027-06-24,Databricks,Bay Area,,,Databricks,Host,,,https://www.databricks.com/dataaisummit/agenda,Databricks Data+AI Summit,2026-10-27,New,
-ChannelPro DEEP DIVE: Where the Next Wave of MSP Revenue Is Coming From,2027-08-24,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-where-the-next-wave-of-msp-revenue-is-coming-from/,Channel Pro Network,2026-10-27,New,
-2027 ChannelPro DEFEND: Dallas,2027-09-14,2027-09-15,ChannelPro Network,Texas,,,,,,,https://events.channelpronetwork.com/2027-channelpro-defend-dallas/,Channel Pro Network,2026-10-27,New,
-Dreamforce 2027,2027-09-21,2027-09-23,Salesforce,Bay Area,,,Salesforce,Host,,,https://www.salesforce.com/dreamforce/,Dreamforce,2026-10-27,New,
-ChannelPro DEEP DIVE: The AI-Powered MSP,2027-10-19,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-the-ai-powered-msp/,Channel Pro Network,2026-10-27,New,
+﻿Name,Date,End Date,Organiser/Host,Region,City,Format,Companies Attending,Role,Named Speakers,Cost,URL,Source
+Agentforce World Tour Mumbai,2025-04-15,,Salesforce,India,Mumbai,Virtual,Salesforce,,,Free,https://www.salesforce.com/in/form/event/awt-mumbai25/?d=pb,Legacy tracker 2026
+NRF Big Show,2026-01-11,2026-01-13,,New York,New York,In-person,,,,,https://nrfbigshow.nrf.com/,Legacy tracker 2026
+MongoDB.local,2026-01-15,,MongoDB,Bay Area,San Francisco,In-person,MongoDB,,,50,https://www.mongodb.com/events/mongodb-local/san-francisco?tck=pathfactory,Legacy tracker 2026
+Microsoft AI Tour,2026-01-21,,Microsoft,New York,New York,In-person,Microsoft,,,Free,https://aitour.microsoft.com/flow/microsoft/nyc26/landingpage/page/cityhome,Legacy tracker 2026
+AI Conclave Bengaluru: Agentic AI & Data Edition,2026-01-22,,AWS,India,Bengaluru,In-person,AWS,,,Free,https://aws.amazon.com/events/ai_conclave/,Legacy tracker 2026
+Acumatica Summit 2026,2026-01-25,2026-01-28,Acumatica,Seattle,Seattle,In-person,Acumatica,,,Not mentioned,https://summit.acumatica.com/?utm_source=vendelux.com,Legacy tracker 2026
+Oracle AI World Tour,2026-02-10,,Oracle,India,Mumbai,In-person,Oracle,,,Not mentioned,https://www.oracle.com/in/ai-world-tour/?source=:ow:es:lv::::RC_WWMK250424P00040:OAIWT_OCOM_EventSearchListing&intcmp=:ow:es:lv::::RC_WWMK250424P00040:OAIWT_OCOM_EventSearchListing,Legacy tracker 2026
+AI Impact Summit,2026-02-16,2026-02-20,,India,New Delhi,In-person,,,,,https://kripeshadwani.com/best-tech-events-in-india/#ai-impact-summit-2026,Legacy tracker 2026
+INSIGHT Xtra,2026-02-17,,NetApp,India,Mumbai,In-person,NetApp,,,Not mentioned,https://www.netapp.com/company/events/insight-xtra-mumbai/,Legacy tracker 2026
+Cloud Summit 26,2026-02-18,,,India,Mumbai,In-person,,,,Not mentioned,https://cio.economictimes.indiatimes.com/cloud-summit,Legacy tracker 2026
+Commvault SHIFT,2026-02-27,,Commvault,India,Mumbai,In-person,Commvault,,,Not mentioned,https://discover.commvault.com/event-shift-live-mumbai-registration.html?_gl=1*akggyi*_gcl_au*MTM2MDExOTE0Mi4xNzY0NjgyMjM0*_ga*NDA1MjgzNzkwLjE3NjQ2ODIyMzQ.*_ga_M2TFPKFW4N*czE3NjU0NTg4MzEkbzIkZzEkdDE3NjU0NTg4NzMkajE4JGwwJGgw,Legacy tracker 2026
+NVIDIA GTC 2026,2026-03-16,2026-03-19,Nvidia,Bay Area,San Jose,In-person,NVIDIA,,,Not mentioned,https://www.nvidia.com/gtc/events/,Legacy tracker 2026
+The Experience Management Summit,2026-03-17,2026-03-19,Qualtrics,Seattle,Seattle,In-person,Qualtrics,,,1299,https://www.qualtrics.com/x4summit/?utm_source=vendelux.com,Legacy tracker 2026
+Human X,2026-04-06,2026-04-09,,Bay Area,San Francisco,In-person,,,,2650,https://humanx.co/,Legacy tracker 2026
+Oracle Customer Edge Summit,2026-04-12,2026-04-14,Oracle,Texas,Austin,In-person,Oracle,,,875,https://www.oracle.com/customer-edge-summit/,Legacy tracker 2026
+SaaStr AI: ANNUAL x AI Summit,2026-05-12,2026-05-14,,Bay Area,San Francisco,In-person,,,,Not mentioned,https://www.saastrannual.com/,Legacy tracker 2026
+SAP Now AI Tour,2026-05-19,,SAP,India,Mumbai,In-person,SAP,,,Not mentioned,https://www.sap.com/india/events/sapnow.html#apac,Legacy tracker 2026
+Docusign Momentum 26,2026-05-20,2026-05-21,Docusign,New York,New York City,In-person,Docusign,,,Not mentioned,https://momentum.docusign.com/?c_2080266=https%3A%2F%2Fwww.bing.com%2F,Legacy tracker 2026
+Snowflake Summit 2026,2026-06-01,2026-06-04,Snowflake,Bay Area,Moscone Center San Francisco,In-person,Snowflake,,,,https://www.snowflake.com/en/summit/,Legacy tracker 2026
+DASH,2026-06-09,2026-06-10,Datadog,New York,New York City,In-person,Datadog,,,Not mentioned,https://www.dashcon.io/,Legacy tracker 2026
+Databricks Data+AI Summit,2026-06-15,2026-06-18,Databricks,Bay Area,San Francisco,In-person,Databricks,,,,https://www.databricks.com/dataaisummit,Legacy tracker 2026
+TechMentor & Cybersecurity Live! @ Microsoft HQ,2026-08-03,2026-08-07,Microsoft,Seattle,Redmond,In-person,Microsoft,,,Not publicly listed,,Legacy tracker 2026
+AI Agents Seattle – August 2026,2026-08-11,,AI / Claude ecosystem,Seattle,Seattle,In-person,Anthropic,,,Not publicly listed,,Legacy tracker 2026
+"AI Agents in the Wild: Building, Scaling & Deploying in Production",2026-08-12,,Salesforce / AWS,Seattle,Bellevue,In-person,"AWS, Salesforce",,,Not publicly listed,,Legacy tracker 2026
+NVIDIA Spark Hack: Seattle,2026-08-14,,NVIDIA,Seattle,Seattle,In-person,NVIDIA,,,No public fee listed; approval required,,Legacy tracker 2026
+ISV Partner Event,2026-08-20,,ServiceNow,Seattle,Seattle,In-person,ServiceNow,,,Free,,Legacy tracker 2026
+"MICROSOFT 365, DATA & POWER PLATFORM CONFERENCES",2026-08-24,2026-08-28,Microsoft,Seattle,Seattle,In-person,Microsoft,,,1595-2695,https://www.techcon365.com/Seattle/,Legacy tracker 2026
+"TechCon 365, DATACON & PWRCON Seattle 2026",2026-08-24,2026-08-28,Microsoft,Seattle,Seattle,In-person,Microsoft,,,"$1,825–$2,995 currently, depending on pass",,Legacy tracker 2026
+AWS Marketplace Seller Forum,2026-09-01,2026-09-02,AWS,Seattle,Bellevue,In-person,AWS,,,Invite only event,https://aws.amazon.com/marketplace/resources/events/seller-conference,Legacy tracker 2026
+"AI, Zero Trust & Enterprise Resilience in the Age of Continuous Disruption",2026-09-10,,Intuit / Oracle,Seattle,Bellevue,In-person,"Oracle, Intuit",,,Not publicly listed,,Legacy tracker 2026
+CISOMeet Seattle,2026-09-10,,SAP,Seattle,Bellevue,In-person,SAP,,,No public fee listed; CISO/Sr. InfoSec qualification,,Legacy tracker 2026
+World Forum,2026-09-10,,ServiceNow,New York,New York,In-person,ServiceNow,,,,https://www.servicenow.com/events/world-forum.html,Legacy tracker 2026
+Dreamforce 2026,2026-09-15,2026-09-17,Salesforce,Bay Area,San Francisco,In-person,Salesforce,,,,https://www.salesforce.com/dreamforce/?d=pb,Legacy tracker 2026
+Amazon Accelerate 2026,2026-09-22,2026-09-24,Amazon / AWS ecosystem,Seattle,Seattle,In-person,AWS,,,Price not publicly surfaced; $100 early-bird discount through Aug 8,,Legacy tracker 2026
+IA40 Summit 2026,2026-09-29,2026-09-30,AI ecosystem / Microsoft / AWS / Databricks,Seattle,Seattle,In-person,"Microsoft, AWS, Databricks",,,Invite-only / no public fee,,Legacy tracker 2026
+Build with Gemini – Seattle,2026-09-30,,Google Cloud,Seattle,Seattle,In-person,Google,,,Free / complimentary,,Legacy tracker 2026
+Official Cybersecurity Summit – Seattle/Bellevue,2026-10-01,,IBM / Cybersecurity ecosystem,Seattle,Bellevue,In-person,IBM,,,$250 standard admission,,Legacy tracker 2026
+Cypher 2026,2026-10-06,2026-10-08,,India,Bengaluru,In-person,,,,7000 (INR),https://kripeshadwani.com/best-tech-events-in-india/#ai-impact-summit-2026,Legacy tracker 2026
+World Forum,2026-10-06,,ServiceNow,India,Mumbai,In-person,ServiceNow,,,,https://www.servicenow.com/events/world-forum.html,Legacy tracker 2026
+TechCrunch Disrupt 2026,2026-10-13,2026-10-15,,Bay Area,San Francisco,In-person,,,,Not mentioned,https://techcrunch.com/events/tc-disrupt-2026/,Legacy tracker 2026
+ElevateIT Seattle Technology Summit 2026,2026-10-14,,Nutanix / Enterprise IT ecosystem,Seattle,Seattle,In-person,Nutanix,,,Not publicly listed,,Legacy tracker 2026
+Cloudflare Connect,2026-10-19,2026-10-22,Cloudflare,Bay Area,San Francisco,In-person,Cloudflare,,,,https://www.cloudflare.com/en-gb/lp/cloudflare-connect-2026/,Legacy tracker 2026
+Seattle AI Week 2026,2026-10-26,2026-10-30,Multi-vendor / AI ecosystem,Seattle,Seattle,In-person,,,,Varies by event; flagship Summit EB $175,,Legacy tracker 2026
+Agents in NYC,2026-10-28,2026-10-28,"Datadog, Albert Zhao, Datadog",New York,New York,In-person,Datadog,Host,,,https://luma.com/agentsinnyc,Luma NYC
+SecureWorld Seattle 2026,2026-11-04,2026-11-05,OpenAI / Google Cloud / Cohesity / Blue Yonder,Seattle,Bellevue,In-person,"Google, Cohesity, Blue Yonder, OpenAI",,,Multiple pass types; current price not publicly surfaced in indexed page,,Legacy tracker 2026
+PASS Data Community Summit West,2026-11-09,2026-11-11,Data / Cloud ecosystem,Seattle,Seattle,In-person,,,,"$1,790–$1,990 for published 2-day ticket",,Legacy tracker 2026
+SaaSify Partner Central Agentic Workshop,2026-11-12,2026-11-12,,Seattle,Seattle,In-person,AWS,,,,https://www.eventbrite.com/e/saasify-partner-central-agentic-workshop-tickets-2003698327636,Eventbrite Seattle - AWS/Microsoft/Google
+"Identity, AI & Cybersecurity: Securing the Enterprise in an Agentic World",2026-11-13,,"Seattle Data, AI & Security",Seattle,Bellevue,In-person,Microsoft,,"Seattle Data, AI & Security",,https://www.meetup.com/seattledataaiandsecurity/events/316481475/,Meetup Seattle - AWS
+Microsoft Ignite 2026,2026-11-17,2026-11-20,Microsoft,Bay Area,San Francisco,In-person,Microsoft,,,,https://ignite.microsoft.com/en-US/home,Legacy tracker 2026
+SaaSify Partner Central Agentic Workshop,2026-11-17,2026-11-17,,Bay Area,San Francisco,In-person,AWS,,,,https://www.eventbrite.com/e/saasify-partner-central-agentic-workshop-tickets-2003695905391,Eventbrite SF - cloud partner
+Cloudflare Immerse,2026-11-20,,Cloudflare,Bay Area,Bay Area,In-person,Cloudflare,,,,https://fieldmarketing.www.cloudflare.com/cloudflareimmersebayarea?_gl=1*1ge1j1x*_gcl_au*MjMxOTM0MjE4LjE3NTkzNjYwMjI.*_ga*ZmI3OTU3NjUtZDkyOC00M2I3LWJiOGYtNzQ5ZjJlZGUxYWFm*_ga_SQCRB0TXZW*czE3NjU0NjEwMDIkbzMkZzEkdDE3NjU0NjEwNTkkajMkbDAkaDAkZHVGb1hkWDJpQmU2OUExYjJSSl92c2xTbkxWQURDZTlUSWc.,Legacy tracker 2026
+Gartner / Evanta Seattle CIO Community Executive Summit,2026-12-01,,Google Cloud / Cloudflare / Dynatrace,Seattle,Seattle,In-person,"Google, Dynatrace, Cloudflare",,,Invite/application-based; no public attendee fee,,Legacy tracker 2026
+MSP Summit: AI Symposium,2026-12-09,,,New York,,,Microsoft,,,,https://themspsummit.com/msp-summit-ai-symposium/,MSP Summit / events calendar
+Microsoft AI Tour - Seattle,2026-12-09,,Microsoft,Seattle,Seattle,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/seattle27/citylanding/page/cityhome,Microsoft AI Tour
+Microsoft AI Tour - Mumbai,2027-02-10,,Microsoft,India,Mumbai,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymemumbai/page/notifyme,Microsoft AI Tour
+Microsoft AI Tour - Bengaluru,2027-02-15,,Microsoft,India,Bengaluru,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymebengaluru/page/notifyme,Microsoft AI Tour
+ChannelPro DEEP DIVE: Cybersecurity in the Age of AI,2027-02-16,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-cybersecurity-in-the-age-of-ai/,Channel Pro Network
+Xchange 2027,2027-03-07,2027-03-09,The Channel Company,Texas,,,,,,,https://event.thechannelco.com/xchange-march/,Xchange (The Channel Co)
+Microsoft AI Tour - New York City,2027-03-18,,Microsoft,New York,New York City,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymenyc/page/notifyme,Microsoft AI Tour
+ChannelPro DEEP DIVE: Perfecting Your Tool Stack,2027-04-06,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-perfecting-your-tool-stack/,Channel Pro Network
+ChannelPro DEEP DIVE: The Most Profitable Cybersecurity Services in 2027,2027-06-01,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-the-most-profitable-cybersecurity-services-in-2027/,Channel Pro Network
+Microsoft AI Tour - Houston,2027-06-02,,Microsoft,Texas,Houston,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymehouston/page/notifyme,Microsoft AI Tour
+Databricks Data+AI Summit 2027,2027-06-21,2027-06-24,Databricks,Bay Area,,,Databricks,Host,,,https://www.databricks.com/dataaisummit/agenda,Databricks Data+AI Summit
+ChannelPro DEEP DIVE: Where the Next Wave of MSP Revenue Is Coming From,2027-08-24,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-where-the-next-wave-of-msp-revenue-is-coming-from/,Channel Pro Network
+2027 ChannelPro DEFEND: Dallas,2027-09-14,2027-09-15,ChannelPro Network,Texas,,,,,,,https://events.channelpronetwork.com/2027-channelpro-defend-dallas/,Channel Pro Network
+Dreamforce 2027,2027-09-21,2027-09-23,Salesforce,Bay Area,,,Salesforce,Host,,,https://www.salesforce.com/dreamforce/,Dreamforce
+ChannelPro DEEP DIVE: The AI-Powered MSP,2027-10-19,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-the-ai-powered-msp/,Channel Pro Network

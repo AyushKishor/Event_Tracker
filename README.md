@@ -6,12 +6,12 @@ limited to New York, Seattle, India, Bay Area, Texas (plus virtual). Output is o
 ## How it works
 `python refresh.py` scrapes the pages in `sources.yaml` (the finite watchlist), optionally runs web-search
 **Discovery** for new pages (needs `BRAVE_API_KEY`), tags companies and regions using `config.yaml`, and appends
-only new events. Existing rows, including your **Status** and **Notes**, are never modified.
+only new events. Existing rows are never modified.
 
 GitHub Actions (`.github/workflows/monthly-refresh.yml`) runs this on the 1st of each month and commits the
 updated workbook. Trigger it manually from the Actions tab (workflow_dispatch). Optional repo secrets: `BRAVE_API_KEY` (Discovery) and
 `FIRECRAWL_API_KEY` (pages that block normal scrapers, e.g. ServiceNow). Scheduled workflows only run from the
-default branch, so merge this branch first. Commit your edits to `tracker.xlsx` before the next run.
+default branch, so merge this branch first. 
 
 ## Local use
 ```

@@ -96,25 +96,19 @@ def test_dedupe_key_normalises():
     assert a != workbook.event_key("aws partner summit", date(2027, 3, 11), "seattle")
 
 
-def test_merge_idempotent_and_preserves_user_edits(tmp_path):
+def test_merge_idempotent_single_sheet_no_tracking_columns(tmp_path):
     path = tmp_path / "t.xlsx"
     html = jsonld_page([ev("AWS Partner Summit", "2027-03-10", "Seattle", "AWS")])
     events = extract.parse_events(html, "http://x", cfg(), {"label": "t"}, TODAY)
 
     assert workbook.merge(path, events, TODAY) == (1, 1)
+    assert workbook.merge(path, events, TODAY) == (0, 1)  # no duplicate
 
     from openpyxl import load_workbook
     wb = load_workbook(path)
-    ws = wb[workbook.SHEET]
-    ws.cell(row=2, column=workbook.IDX["Status"] + 1, value="Attending")
-    ws.cell(row=2, column=workbook.IDX["Notes"] + 1, value="meet partner lead")
-    wb.save(path)
-
-    assert workbook.merge(path, events, TODAY) == (0, 1)  # no duplicate
-    row = workbook.load_rows(path)[0]
-    assert row[workbook.IDX["Status"]] == "Attending"
-    assert row[workbook.IDX["Notes"]] == "meet partner lead"
-    assert load_workbook(path).sheetnames == ["Events"]  # single sheet only
+    assert wb.sheetnames == ["Events"]
+    assert [c.value for c in wb["Events"][1]] == workbook.HEADERS
+    assert not {"Date Added", "Status", "Notes"} & set(workbook.HEADERS)
 
 
 def verdict(name, city="", host="", fmt=""):
