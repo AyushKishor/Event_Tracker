@@ -1,25 +1,4 @@
 ﻿Name,Date,End Date,Organiser/Host,Region,City,Format,Companies Attending,Role,Named Speakers,Cost,URL,Source
-Agentforce World Tour Mumbai,2025-04-15,,Salesforce,India,Mumbai,Virtual,Salesforce,,,Free,https://www.salesforce.com/in/form/event/awt-mumbai25/?d=pb,Legacy tracker 2026
-NRF Big Show,2026-01-11,2026-01-13,,New York,New York,In-person,,,,,https://nrfbigshow.nrf.com/,Legacy tracker 2026
-MongoDB.local,2026-01-15,,MongoDB,Bay Area,San Francisco,In-person,MongoDB,,,50,https://www.mongodb.com/events/mongodb-local/san-francisco?tck=pathfactory,Legacy tracker 2026
-Microsoft AI Tour,2026-01-21,,Microsoft,New York,New York,In-person,Microsoft,,,Free,https://aitour.microsoft.com/flow/microsoft/nyc26/landingpage/page/cityhome,Legacy tracker 2026
-AI Conclave Bengaluru: Agentic AI & Data Edition,2026-01-22,,AWS,India,Bengaluru,In-person,AWS,,,Free,https://aws.amazon.com/events/ai_conclave/,Legacy tracker 2026
-Acumatica Summit 2026,2026-01-25,2026-01-28,Acumatica,Seattle,Seattle,In-person,Acumatica,,,Not mentioned,https://summit.acumatica.com/?utm_source=vendelux.com,Legacy tracker 2026
-Oracle AI World Tour,2026-02-10,,Oracle,India,Mumbai,In-person,Oracle,,,Not mentioned,https://www.oracle.com/in/ai-world-tour/?source=:ow:es:lv::::RC_WWMK250424P00040:OAIWT_OCOM_EventSearchListing&intcmp=:ow:es:lv::::RC_WWMK250424P00040:OAIWT_OCOM_EventSearchListing,Legacy tracker 2026
-AI Impact Summit,2026-02-16,2026-02-20,,India,New Delhi,In-person,,,,,https://kripeshadwani.com/best-tech-events-in-india/#ai-impact-summit-2026,Legacy tracker 2026
-INSIGHT Xtra,2026-02-17,,NetApp,India,Mumbai,In-person,NetApp,,,Not mentioned,https://www.netapp.com/company/events/insight-xtra-mumbai/,Legacy tracker 2026
-Cloud Summit 26,2026-02-18,,,India,Mumbai,In-person,,,,Not mentioned,https://cio.economictimes.indiatimes.com/cloud-summit,Legacy tracker 2026
-Commvault SHIFT,2026-02-27,,Commvault,India,Mumbai,In-person,Commvault,,,Not mentioned,https://discover.commvault.com/event-shift-live-mumbai-registration.html?_gl=1*akggyi*_gcl_au*MTM2MDExOTE0Mi4xNzY0NjgyMjM0*_ga*NDA1MjgzNzkwLjE3NjQ2ODIyMzQ.*_ga_M2TFPKFW4N*czE3NjU0NTg4MzEkbzIkZzEkdDE3NjU0NTg4NzMkajE4JGwwJGgw,Legacy tracker 2026
-NVIDIA GTC 2026,2026-03-16,2026-03-19,Nvidia,Bay Area,San Jose,In-person,NVIDIA,,,Not mentioned,https://www.nvidia.com/gtc/events/,Legacy tracker 2026
-The Experience Management Summit,2026-03-17,2026-03-19,Qualtrics,Seattle,Seattle,In-person,Qualtrics,,,1299,https://www.qualtrics.com/x4summit/?utm_source=vendelux.com,Legacy tracker 2026
-Human X,2026-04-06,2026-04-09,,Bay Area,San Francisco,In-person,,,,2650,https://humanx.co/,Legacy tracker 2026
-Oracle Customer Edge Summit,2026-04-12,2026-04-14,Oracle,Texas,Austin,In-person,Oracle,,,875,https://www.oracle.com/customer-edge-summit/,Legacy tracker 2026
-SaaStr AI: ANNUAL x AI Summit,2026-05-12,2026-05-14,,Bay Area,San Francisco,In-person,,,,Not mentioned,https://www.saastrannual.com/,Legacy tracker 2026
-SAP Now AI Tour,2026-05-19,,SAP,India,Mumbai,In-person,SAP,,,Not mentioned,https://www.sap.com/india/events/sapnow.html#apac,Legacy tracker 2026
-Docusign Momentum 26,2026-05-20,2026-05-21,Docusign,New York,New York City,In-person,Docusign,,,Not mentioned,https://momentum.docusign.com/?c_2080266=https%3A%2F%2Fwww.bing.com%2F,Legacy tracker 2026
-Snowflake Summit 2026,2026-06-01,2026-06-04,Snowflake,Bay Area,Moscone Center San Francisco,In-person,Snowflake,,,,https://www.snowflake.com/en/summit/,Legacy tracker 2026
-DASH,2026-06-09,2026-06-10,Datadog,New York,New York City,In-person,Datadog,,,Not mentioned,https://www.dashcon.io/,Legacy tracker 2026
-Databricks Data+AI Summit,2026-06-15,2026-06-18,Databricks,Bay Area,San Francisco,In-person,Databricks,,,,https://www.databricks.com/dataaisummit,Legacy tracker 2026
 TechMentor & Cybersecurity Live! @ Microsoft HQ,2026-08-03,2026-08-07,Microsoft,Seattle,Redmond,In-person,Microsoft,,,Not publicly listed,,Legacy tracker 2026
 AI Agents Seattle – August 2026,2026-08-11,,AI / Claude ecosystem,Seattle,Seattle,In-person,Anthropic,,,Not publicly listed,,Legacy tracker 2026
 "AI Agents in the Wild: Building, Scaling & Deploying in Production",2026-08-12,,Salesforce / AWS,Seattle,Bellevue,In-person,"AWS, Salesforce",,,Not publicly listed,,Legacy tracker 2026
@@ -55,17 +34,3 @@ Gartner / Evanta Seattle CIO Community Executive Summit,2026-12-01,,Google Cloud
 CMA Power Circles,2026-12-02,,Channel Marketing Association,Virtual,,Virtual,,,,,https://www.channelmarketingassociation.com/industry-events,Channel Marketing Association events
 MSP Summit: AI Symposium,2026-12-09,,,New York,,,Microsoft,,,,https://themspsummit.com/msp-summit-ai-symposium/,MSP Summit / events calendar
 Microsoft AI Tour - Seattle,2026-12-09,,Microsoft,Seattle,Seattle,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/seattle27/citylanding/page/cityhome,Microsoft AI Tour
-Microsoft AI Tour - Mumbai,2027-02-10,,Microsoft,India,Mumbai,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymemumbai/page/notifyme,Microsoft AI Tour
-Microsoft AI Tour - Bengaluru,2027-02-15,,Microsoft,India,Bengaluru,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymebengaluru/page/notifyme,Microsoft AI Tour
-ChannelPro DEEP DIVE: Cybersecurity in the Age of AI,2027-02-16,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-cybersecurity-in-the-age-of-ai/,Channel Pro Network
-Xchange 2027,2027-03-07,2027-03-09,The Channel Company,Texas,,,,,,,https://event.thechannelco.com/xchange-march/,Xchange (The Channel Co)
-Microsoft AI Tour - New York City,2027-03-18,,Microsoft,New York,New York City,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymenyc/page/notifyme,Microsoft AI Tour
-ChannelPro DEEP DIVE: Perfecting Your Tool Stack,2027-04-06,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-perfecting-your-tool-stack/,Channel Pro Network
-Global Channel Growth Summit 2027,2027-04-13,2027-04-15,Channel Marketing Association,Texas,,,,,,,https://www.channelmarketingassociation.com/Global-Summit-2027,CMA Global Channel Growth Summit
-ChannelPro DEEP DIVE: The Most Profitable Cybersecurity Services in 2027,2027-06-01,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-the-most-profitable-cybersecurity-services-in-2027/,Channel Pro Network
-Microsoft AI Tour - Houston,2027-06-02,,Microsoft,Texas,Houston,,Microsoft,Host,,,https://aitour.microsoft.com/flow/microsoft/tour/notifymehouston/page/notifyme,Microsoft AI Tour
-Databricks Data+AI Summit 2027,2027-06-21,2027-06-24,Databricks,Bay Area,,,Databricks,Host,,,https://www.databricks.com/dataaisummit/agenda,Databricks Data+AI Summit
-ChannelPro DEEP DIVE: Where the Next Wave of MSP Revenue Is Coming From,2027-08-24,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-where-the-next-wave-of-msp-revenue-is-coming-from/,Channel Pro Network
-2027 ChannelPro DEFEND: Dallas,2027-09-14,2027-09-15,ChannelPro Network,Texas,,,,,,,https://events.channelpronetwork.com/2027-channelpro-defend-dallas/,Channel Pro Network
-Dreamforce 2027,2027-09-21,2027-09-23,Salesforce,Bay Area,San Francisco,,Salesforce,Host,,,https://www.salesforce.com/dreamforce/,Dreamforce
-ChannelPro DEEP DIVE: The AI-Powered MSP,2027-10-19,,ChannelPro Network,Virtual,,Virtual,,,,,https://events.channelpronetwork.com/channelpro-deep-dive-the-ai-powered-msp/,Channel Pro Network

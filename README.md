@@ -1,7 +1,7 @@
 # Partner Event Tracker
 
 Monthly tracker of channel/partner events involving Microsoft, AWS, Google, Salesforce, ServiceNow and Oracle,
-limited to New York, Seattle, India, Bay Area, Texas (plus virtual). Output is one sheet, `tracker.xlsx` > **Events**.
+limited to New York, Seattle, India, Bay Area, Texas (plus virtual). Output is `tracker.xlsx` with one sheet per year (**2026**, **2027**) plus `tracker_2026.csv` / `tracker_2027.csv` for Power Query. Nothing dated before `earliest_date` (2026-08-01) is kept.
 
 ## How it works
 `python refresh.py` scrapes the pages in `sources.yaml` (the finite watchlist), optionally runs web-search

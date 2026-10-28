@@ -13,7 +13,6 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from .extract import Event
 
-SHEET = "Events"
 COLUMNS = [
     ("Name", 42), ("Date", 13), ("End Date", 13), ("Organiser/Host", 22), ("Region", 12),
     ("City", 18), ("Format", 11), ("Companies Attending", 28), ("Role", 18),
@@ -36,14 +35,14 @@ def _to_date(v) -> date | None:
 
 
 def load_rows(path: Path) -> list[list]:
-    """Existing data rows as lists in HEADERS order ([] if the file does not exist)."""
+    """Existing data rows from every year sheet, as lists in HEADERS order ([] if the file does not exist)."""
     if not path.exists():
         return []
-    ws = load_workbook(path)[SHEET]
     rows = []
-    for r in ws.iter_rows(min_row=2, max_col=len(HEADERS), values_only=True):
-        if any(v not in (None, "") for v in r):
-            rows.append(list(r) + [None] * (len(HEADERS) - len(r)))
+    for ws in load_workbook(path).worksheets:
+        for r in ws.iter_rows(min_row=2, max_col=len(HEADERS), values_only=True):
+            if any(v not in (None, "") for v in r):
+                rows.append(list(r) + [None] * (len(HEADERS) - len(r)))
     return rows
 
 
@@ -73,10 +72,15 @@ def _same_event(a: tuple[date, str], b: tuple[date, str]) -> bool:
     return len(short) >= 8 and long_.startswith(short)
 
 
-def merge(path: Path, events: list[Event], today: date | None = None) -> tuple[int, int]:
-    """Append events not already present; keep existing rows untouched. Returns (added, total)."""
-    today = today or date.today()
+def merge(path: Path, events: list[Event], today: date | None = None, earliest: date | None = None) -> tuple[int, int]:
+    """Append events not already present; keep existing rows untouched. Returns (added, total).
+
+    Rows (existing or new) dated before `earliest` are dropped.
+    """
     rows = load_rows(path)
+    if earliest:
+        rows = [r for r in rows if (_to_date(r[IDX["Date"]]) or date.max) >= earliest]
+    events = [e for e in events if not earliest or e.start >= earliest]
     seen = {k for k in map(row_key, rows) if k}
     by_date = [(_to_date(r[IDX["Date"]]), _norm(r[IDX["Name"]])) for r in rows]
     added = 0
@@ -94,10 +98,26 @@ def merge(path: Path, events: list[Event], today: date | None = None) -> tuple[i
     return added, len(rows)
 
 
+YEARS_ALWAYS = (2026, 2027)  # these sheets exist even when empty
+
+
 def write(path: Path, rows: list[list]) -> None:
+    """One sheet (and Excel Table, and CSV) per calendar year: 2026, 2027, ..."""
+    by_year: dict[int, list[list]] = {y: [] for y in YEARS_ALWAYS}
+    for r in rows:
+        d = _to_date(r[IDX["Date"]])
+        by_year.setdefault(d.year if d else YEARS_ALWAYS[0], []).append(r)
+
     wb = Workbook()
-    ws = wb.active
-    ws.title = SHEET
+    wb.remove(wb.active)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    for year in sorted(by_year):
+        _write_sheet(wb.create_sheet(str(year)), year, by_year[year])
+        write_csv(path.with_name(f"{path.stem}_{year}.csv"), by_year[year])
+    wb.save(path)
+
+
+def _write_sheet(ws, year: int, rows: list[list]) -> None:
     ws.append(HEADERS)
     for r in rows:
         ws.append(r)
@@ -121,12 +141,9 @@ def write(path: Path, rows: list[list]) -> None:
 
     ws.freeze_panes = "B2"
     # A real Excel Table (own filters + banding). Power Query / Excel for the web read typed columns from it.
-    table = Table(displayName="Events", ref=f"A1:{get_column_letter(len(HEADERS))}{max(len(rows) + 1, 2)}")
+    table = Table(displayName=f"Events{year}", ref=f"A1:{get_column_letter(len(HEADERS))}{max(len(rows) + 1, 2)}")
     table.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2", showRowStripes=True)
     ws.add_table(table)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(path)
-    write_csv(path.with_suffix(".csv"), rows)
 
 
 def write_csv(path: Path, rows: list[list]) -> None:

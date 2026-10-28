@@ -1,5 +1,6 @@
 # Tracker settings. Edit freely; no code changes needed.
 
+earliest_date: 2026-08-01  # nothing before this date is kept
 lookahead_months: 12       # only keep events starting within this window
 include_virtual: true      # keep virtual/online events regardless of city
 keep_out_of_region: false  # only the 5 regions below (plus virtual if include_virtual). Set true to also keep

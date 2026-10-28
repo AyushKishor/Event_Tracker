@@ -106,8 +106,8 @@ def test_merge_idempotent_single_sheet_no_tracking_columns(tmp_path):
 
     from openpyxl import load_workbook
     wb = load_workbook(path)
-    assert wb.sheetnames == ["Events"]
-    assert [c.value for c in wb["Events"][1]] == workbook.HEADERS
+    assert wb.sheetnames == ["2026", "2027"]
+    assert [c.value for c in wb["2027"][1]] == workbook.HEADERS
     assert not {"Date Added", "Status", "Notes"} & set(workbook.HEADERS)
 
 
@@ -259,3 +259,20 @@ def test_text_listing_date_first_and_city_titles_are_junk():
     out = extract.parse_events("<html><body>" + text.replace("\n", "<br>") + "</body></html>",
                                "http://cma", cfg(False), src, date(2026, 10, 28))
     assert [(e.name, e.region) for e in out] == [("CMA Power Circles", "Virtual")]
+
+
+def test_year_sheets_and_earliest_date_cutoff(tmp_path):
+    path = tmp_path / "t.xlsx"
+    mk = lambda n, d: extract.Event(name=n, start=d, city="Seattle", region="Seattle")
+    events = [mk("Too Early Summit", date(2026, 7, 31)), mk("August Summit", date(2026, 8, 1)),
+              mk("Winter Summit", date(2026, 12, 9)), mk("Spring Summit 2027", date(2027, 3, 15))]
+    assert workbook.merge(path, events, earliest=date(2026, 8, 1)) == (3, 3)
+
+    from openpyxl import load_workbook
+    wb = load_workbook(path)
+    names = lambda sheet: [r[0] for r in wb[sheet].iter_rows(min_row=2, values_only=True)]
+    assert names("2026") == ["August Summit", "Winter Summit"]
+    assert names("2027") == ["Spring Summit 2027"]
+    assert (tmp_path / "t_2026.csv").exists() and (tmp_path / "t_2027.csv").exists()
+    # existing rows before the cutoff are purged too
+    assert workbook.merge(path, [], earliest=date(2026, 12, 1)) == (0, 2)

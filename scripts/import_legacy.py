@@ -85,7 +85,7 @@ def main():
                 url=link if link.startswith("http") else "",
                 source="Legacy tracker 2026",
             ))
-    added, total = workbook.merge(args.output, events)
+    added, total = workbook.merge(args.output, events, earliest=cfg.get("earliest_date"))
     print(f"Imported {added} new event(s); {total} total. Skipped (no usable date): {skipped}")
     print(f"Dropped as small/not company-organised ({len(dropped)}): {dropped}")
 

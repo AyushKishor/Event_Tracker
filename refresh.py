@@ -66,7 +66,7 @@ def main() -> int:
                 print(f"Discovery: {hit['url']} -> {len(events)} event(s)")
             all_events += events
 
-    added, total = workbook.merge(args.output, all_events)
+    added, total = workbook.merge(args.output, all_events, earliest=cfg.get("earliest_date"))
     print(f"\nAdded {added} new event(s); {total} total in {args.output.name}")
     if failed:
         print("Sources with no matching events (check manually): " + "; ".join(failed), file=sys.stderr)
