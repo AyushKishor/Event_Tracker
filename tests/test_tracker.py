@@ -276,3 +276,14 @@ def test_year_sheets_and_earliest_date_cutoff(tmp_path):
     assert (tmp_path / "t_2026.csv").exists() and (tmp_path / "t_2027.csv").exists()
     # existing rows before the cutoff are purged too
     assert workbook.merge(path, [], earliest=date(2026, 12, 1)) == (0, 2)
+
+
+def test_csv_dates_are_plain_readable_text(tmp_path):
+    path = tmp_path / "t.xlsx"
+    mk = lambda n, a, b=None: extract.Event(name=n, start=a, end=b, city="Seattle", region="Seattle")
+    workbook.merge(path, [mk("One day", date(2026, 8, 3)), mk("Same month", date(2026, 8, 10), date(2026, 8, 12)),
+                          mk("Cross month", date(2026, 11, 30), date(2026, 12, 4))])
+    import csv
+    rows = list(csv.DictReader((tmp_path / "t_2026.csv").open(encoding="utf-8-sig")))
+    assert [r["Date"] for r in rows] == ["Aug 3, 2026", "Aug 10\u201312, 2026", "Nov 30 \u2013 Dec 4, 2026"]
+    assert "End Date" not in rows[0]

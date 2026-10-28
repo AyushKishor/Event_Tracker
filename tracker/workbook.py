@@ -146,15 +146,34 @@ def _write_sheet(ws, year: int, rows: list[list]) -> None:
     ws.add_table(table)
 
 
+def date_label(start: date | None, end: date | None) -> str:
+    """Human-readable date text: 'Aug 3, 2026' / 'Aug 3–7, 2026' / 'Nov 30 – Dec 4, 2026'."""
+    if not start:
+        return ""
+    s_txt = f"{start:%b} {start.day}"
+    if not end or end == start:
+        return f"{s_txt}, {start.year}"
+    if (end.year, end.month) == (start.year, start.month):
+        return f"{s_txt}\u2013{end.day}, {start.year}"
+    e_txt = f"{end:%b} {end.day}"
+    if end.year == start.year:
+        return f"{s_txt} \u2013 {e_txt}, {start.year}"
+    return f"{s_txt}, {start.year} \u2013 {e_txt}, {end.year}"
+
+
 def write_csv(path: Path, rows: list[list]) -> None:
-    """Same data as ISO-dated CSV: Power Query / Power BI detect the date columns reliably from this."""
+    """CSV for Power Query. Dates are one plain-text 'Date' column (e.g. 'Nov 30 – Dec 4, 2026'), rows already in
+    date order, so Excel has nothing to convert: no serial numbers, no regional day/month mix-ups, no query edits."""
     import csv
 
-    def cell(v):
-        d = _to_date(v)
-        return d.isoformat() if d else ("" if v is None else v)
-
+    keep = [h for h in HEADERS if h != "End Date"]
     with path.open("w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
-        w.writerow(HEADERS)
-        w.writerows([[cell(v) for v in r] for r in rows])
+        w.writerow(keep)
+        for r in rows:
+            out = []
+            for h in keep:
+                v = r[IDX[h]]
+                out.append(date_label(_to_date(r[IDX["Date"]]), _to_date(r[IDX["End Date"]])) if h == "Date"
+                           else ("" if v is None else v))
+            w.writerow(out)

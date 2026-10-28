@@ -69,7 +69,8 @@ def main():
                 continue
             city = clean(row.get("City"))
             acct = clean(row.get("Target Account"))
-            v = extract.classify(name, acct if acct != "-" else "", "", city, "", {}, cfg)
+            lead = acct.split("/")[0].strip()  # "Salesforce / AWS" -> Salesforce; "AI / Claude ecosystem" -> AI (a category, not a host)
+            v = extract.classify(name, lead if lead != "-" else "", "", city, "", {}, cfg)
             if not v.keep:  # same relevance rules as the scraper: no small community meetups
                 dropped.append(name)
                 continue
@@ -77,7 +78,7 @@ def main():
             link = clean(row.get("Link"))
             events.append(extract.Event(
                 name=name, start=start, end=end, city=city,
-                host=v.host or (acct if acct not in ("-", "") and "/" not in acct else ""),
+                host=v.host or (lead if extract.detect_companies(lead, cfg["_companies"]) else ""),
                 region=extract.detect_region(city, cfg["_regions"]) or "Other",
                 fmt=FMT.get(clean(row.get("Virtual/In-person")).lower(), ""),
                 companies=found or ([acct] if acct and "/" not in acct else []),
