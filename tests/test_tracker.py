@@ -235,3 +235,27 @@ def test_default_config_is_strict_about_regions():
     ])
     out = extract.parse_events(html, "http://x", shipped, {"label": "t"}, TODAY)
     assert [e.region for e in out] == ["Seattle", "Texas", "India", "New York", "Bay Area"]
+
+
+def test_partnership_leaders_cards_and_borrowed_city():
+    html = """<div class="pl-event-box"><span class="event-date">November 18, 2026 | 8:00 am - 11:00 AM PT</span>
+      <span class="event-type">In-Person Event</span><h5>Catalyst Breakfast at Microsoft Ignite</h5>
+      <div class="pl-event-desc"><p>Join partnership leaders</p></div><a href="/e/1">View Event</a></div>
+      <div class="pl-event-box"><span class="event-date">November 3, 2026</span><span class="event-type">In-Person Event</span>
+      <h5>Catalyst Summit London</h5><a href="/e/2">View</a></div>"""
+    src = {"label": "PL", "host": "Partnership Leaders", "trusted": True,
+           "card_selector": {"card": ".pl-event-box", "date": ".event-date", "title": "h5", "type": ".event-type",
+                             "desc": ".pl-event-desc"}}
+    c = cfg(False)
+    out = extract.parse_events(html, "http://pl.com/events", c, src, date(2026, 10, 28))
+    assert [(e.name, e.city, e.region, e.host) for e in out] == [
+        ("Catalyst Breakfast at Microsoft Ignite", "San Francisco", "Bay Area", "Partnership Leaders")]  # London dropped
+    assert out[0].url == "http://pl.com/e/1"
+
+
+def test_text_listing_date_first_and_city_titles_are_junk():
+    text = "November 11-12, 2026\nEMEA Channel Leader Summit\nRegister\nDecember 2, 2026\nCMA Power Circles\nVirtual\nRegister\nOctober 5, 2027\nDallas, TX\n"
+    src = {"label": "CMA", "host": "Channel Marketing Association", "trusted": True, "text_listing": "after"}
+    out = extract.parse_events("<html><body>" + text.replace("\n", "<br>") + "</body></html>",
+                               "http://cma", cfg(False), src, date(2026, 10, 28))
+    assert [(e.name, e.region) for e in out] == [("CMA Power Circles", "Virtual")]

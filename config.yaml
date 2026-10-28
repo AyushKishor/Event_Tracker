@@ -145,6 +145,10 @@ known_cities: [Las Vegas, Orlando, Chicago, Boston, "Washington, D.C.", Washingt
   Tokyo, Osaka, Seoul, Taipei, Jakarta, Mumbai, Bengaluru, Hyderabad, Delhi, Pune, Chennai, San Francisco, San Jose,
   Santa Clara, Austin, Dallas, Houston, San Antonio, Seattle, New York, Bellevue, Redmond, Anaheim, Moscone, Venetian]
 
+# Events that borrow a flagship's city when their own page gives none ("Catalyst Breakfast at Microsoft Ignite").
+event_cities: {"Microsoft Ignite": San Francisco, "re:Invent": Las Vegas, "Dreamforce": San Francisco,
+  "Google Cloud Next": Las Vegas, "Oracle AI World": Las Vegas, "Knowledge 20": Las Vegas, "Cisco Live": Las Vegas}
+
 # Channel / partnership-industry events that are always relevant (name match).
 channel_events:
   - "Channel Partners"
@@ -159,6 +163,15 @@ channel_events:
   - "CRN"
   - "Partnership Leaders"
   - "Crossbeam"
+  - "Catalyst"
+  - "Channel Growth Summit"
+  - "Channel Leader Summit"
+  - "Channel Marketing Association"
+  - "CMA"
+  - "Channel Chiefs"
+  - "Best of Breed"
+  - "NexGen"
+  - "XChange"
 
 # General tech events to always track by name (kept even outside priority regions).
 always_track:

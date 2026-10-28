@@ -329,8 +329,9 @@ def _named_date_events(soup: BeautifulSoup, source: dict, url: str, today: date,
 _NOISE_LINE = re.compile(r"^(!\[|\[?(video cta|learn more|register|register now|add to calendar|find your city|get updates)\b|https?://)", re.IGNORECASE)
 
 
-def _text_events(text: str, base_url: str, today: date, cities: list[str]) -> list[Event]:
-    """Markdown / plain-text fallback: each future date line gets the nearest preceding title line."""
+def _text_events(text: str, base_url: str, today: date, cities: list[str], title_after: bool = False) -> list[Event]:
+    """Markdown / plain-text fallback: each future date line gets the nearest preceding title line
+    (or the next one when title_after: calendars that list the date first, then the title and place)."""
     lines = [re.sub(r"\\([\[\]])", r"\1", l.strip(" *#|>\t")) for l in text.splitlines()]
     lines = [l for l in lines if l]
     out, seen = [], set()
@@ -347,7 +348,17 @@ def _text_events(text: str, base_url: str, today: date, cities: list[str]) -> li
         if dm2:
             end = _parse_date(dm2.group(1))
         title = line[:m.start()].strip(" |-–—:")
-        if len(title) < 4:
+        if title_after and len(title) < 4:
+            rest = re.sub(r"^[\s|,]*(?:\d{1,2}:\d\d.*?(?:AM|PM|am|pm)[^|]*)?", "", tail).strip(" |-–—:")
+            title = rest if len(rest) >= 4 else ""
+            for fwd in range(1, 4):
+                if title or i + fwd >= len(lines):
+                    break
+                cand = lines[i + fwd]
+                if _NOISE_LINE.match(cand) or DATE_RE.search(cand) or len(cand) > 120 or len(cand) < 4:
+                    continue
+                title = cand
+        elif len(title) < 4:
             for back in range(1, 4):
                 if i - back < 0:
                     break
@@ -359,10 +370,33 @@ def _text_events(text: str, base_url: str, today: date, cities: list[str]) -> li
         if len(title) < 4 or (title, start) in seen:
             continue
         seen.add((title, start))
-        after = " ".join(lines[i: i + 2])
+        after = " ".join(lines[i: i + (4 if title_after else 2)])
         city = _city_in(f"{title} {after}", cities)
         out.append(Event(name=title, start=start, end=end, city=city, url=base_url,
                          location_text=f"{title} {after}"))
+    return out
+
+
+def _selector_events(soup: BeautifulSoup, sel: dict, base_url: str, today: date) -> list[Event]:
+    """Pages whose event cards we know: sel = {card, date, title, type?, desc?}. CSS selectors per card."""
+    from urllib.parse import urljoin
+
+    out = []
+    for card in soup.select(sel["card"]):
+        d, t = card.select_one(sel["date"]), card.select_one(sel["title"])
+        if not (d and t):
+            continue
+        m = DATE_RE.search(d.get_text(" ", strip=True))
+        start, end = _range_from_match(m.group(1), today) if m else (None, None)
+        if not start:
+            continue
+        link = card.find("a", href=True)
+        kind = card.select_one(sel["type"]).get_text(" ", strip=True) if sel.get("type") and card.select_one(sel["type"]) else ""
+        desc = card.select_one(sel["desc"]).get_text(" ", strip=True) if sel.get("desc") and card.select_one(sel["desc"]) else ""
+        out.append(Event(name=t.get_text(" ", strip=True), start=start, end=end,
+                         url=urljoin(base_url, link["href"]) if link else base_url,
+                         fmt="Virtual" if "virtual" in kind.lower() else "In-person" if "person" in kind.lower() else "",
+                         location_text=f"{t.get_text(' ', strip=True)} {desc}"))
     return out
 
 
@@ -388,8 +422,14 @@ def parse_events(html: str, url: str, settings: dict, source: dict, today: date 
     soup = BeautifulSoup(html, "html.parser")
     raw = []
     if markdown:
-        raw = _text_events(html, url, today, settings.get("known_cities", []))
+        raw = _text_events(html, url, today, settings.get("known_cities", []),
+                           source.get("text_listing") == "after")
         html = ""
+    elif source.get("card_selector"):
+        raw = _selector_events(soup, source["card_selector"], url, today)
+    elif source.get("text_listing"):
+        raw = _text_events(soup.get_text("\n"), url, today, settings.get("known_cities", []),
+                           source["text_listing"] == "after")
     elif source.get("name_pattern") or (source.get("single") and source.get("name")):
         raw = _named_date_events(BeautifulSoup(html, "html.parser"), source, url, today,
                                  settings.get("known_cities", []))
@@ -422,6 +462,7 @@ def parse_events(html: str, url: str, settings: dict, source: dict, today: date 
         if not v.keep:
             continue
         ev.region, ev.host, ev.companies = v.region, v.host, v.companies
+        ev.city = ev.city or v.city
         ev.fmt = ev.fmt or ("Virtual" if v.virtual else "")
         ev.role = v.role
         ev.source = source.get("label", url)
@@ -442,6 +483,7 @@ class Verdict:
     companies: list[str] = field(default_factory=list)
     role: str = ""
     virtual: bool = False
+    city: str = ""
 
 
 def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict, settings: dict,
@@ -467,6 +509,11 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
 
     # "virtual" in the page text only counts when no physical city is named (in-person events often offer a virtual pass)
     # (sites often mislabel in-person events as OnlineEventAttendanceMode, so a named venue/city wins)
+    if not city:  # e.g. "Catalyst Breakfast at Microsoft Ignite": borrow the host event's city
+        for ref, ref_city in (settings.get("event_cities") or {}).items():
+            if re.search(re.escape(ref), name, re.IGNORECASE):
+                city = ref_city
+                break
     virtual = (fmt == "Virtual" or bool(VIRTUAL_RE.search(f"{name} {text}"))) \
         and not _city_in(f"{city} {text}", settings.get("known_cities", []))
     region = detect_region(f"{city} {text}", regions)
@@ -483,7 +530,7 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
 
     # Company-organised or partnership events only: community meetups, user groups and mixers are out
     # unless the name is a tracked flagship or a known channel-industry event.
-    if always or channel_event:
+    if always or channel_event or source.get("trusted"):
         relevant = True
     elif small:
         return Verdict(False, "community meetup / small social event")
@@ -496,10 +543,10 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
     if not host:  # no organiser on the page: a company named in the event title is the host
         named = detect_companies(name, companies)
         host = named[0] if named else ""
-    return Verdict(True, "ok", region or "Other", host, found, detect_role(tag_text, host, companies, found), virtual)
+    return Verdict(True, "ok", region or "Other", host, found, detect_role(tag_text, host, companies, found), virtual, city)
 
 
-JUNK_NAME_RE = re.compile(r"^(learn more|register|check out|what.?s next|read more|save the date|see you|sign up|view|explore)\b", re.IGNORECASE)
+JUNK_NAME_RE = re.compile(r"^([A-Z][A-Za-z .']+, [A-Z]{2}$|learn more|register|check out|what.?s next|read more|save the date|see you|sign up|view|explore)\b", re.IGNORECASE)
 INVITE_RE = re.compile(r"\b(invite[- ]only|by invitation|invitation only|application[- ]based)\b", re.IGNORECASE)
 
 

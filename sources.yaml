@@ -3,6 +3,7 @@
 #
 # name: force the event name (flagship pages whose headings are marketing copy)
 # single: one-event page; keep only the nearest upcoming date
+# trusted: channel-industry publisher/association; every listed event counts (still region + small-event filters)
 # require_company: only keep events that mention one of the tracked companies
 # require_keyword: only keep events that mention a channel/partner keyword
 # host: default Organiser/Host when the page does not state one
@@ -47,6 +48,21 @@ sources:
   - {label: Channel Pro Network, url: "https://events.channelpronetwork.com/", host: "ChannelPro Network"}
   - {label: PartnerTechX, url: "https://channelfocuscommunity.net/partnertechx-2026/", name: "PartnerTechX", single: true, host: "Channel Focus Community"}
   - {label: Xchange (The Channel Co), url: "https://event.thechannelco.com/xchange-march/", name: "Xchange", single: true, host: "The Channel Company"}
+
+  # ---- Channel communities & media (Partnership Leaders, CMA, CRN, Channel Futures, Channel Focus, CSA) ----
+  - label: Partnership Leaders events
+    url: "https://www.partnershipleaders.com/events"
+    host: Partnership Leaders
+    trusted: true
+    card_selector: {card: ".pl-event-box", date: ".event-date", title: "h5", type: ".event-type", desc: ".pl-event-desc"}
+  - {label: Channel Marketing Association events, url: "https://www.channelmarketingassociation.com/industry-events", host: Channel Marketing Association, text_listing: after, trusted: true}
+  - {label: CMA Global Channel Growth Summit, url: "https://www.channelmarketingassociation.com/Global-Summit-2027", host: Channel Marketing Association, name: "Global Channel Growth Summit", single: true, trusted: true}
+  - {label: CRN XChange, url: "https://www.crn.com/xchange", host: CRN, name: "XChange", single: true}
+  - {label: CRN IT industry events calendar, url: "https://www.crn.com/it-industry-events-calendar", host: CRN, text_listing: after}
+  - {label: The Channel Company events (CRN parent), url: "https://www.thechannelco.com/events", host: The Channel Company, text_listing: after}
+  # Channel Futures (channelfutures.com) is a news site that blocks scrapers (403); its events are the
+  # Informa shows already listed above (Channel Partners Conference, MSP Summit).
+  # Channel Focus Community: PartnerTechX is listed above; its /events page lists only that event.
 
   # ---- Curated lists / regional (India, Seattle) ----
   - {label: TechCon 365 Seattle, url: "https://www.techcon365.com/Seattle/", host: Microsoft, name: "TechCon 365, DATACON & PWRCON Seattle", single: true}
