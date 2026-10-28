@@ -99,6 +99,7 @@ def merge(path: Path, events: list[Event], today: date | None = None, earliest: 
 
 
 YEARS_ALWAYS = (2026, 2027)  # these sheets exist even when empty
+CSV_YEARS = range(2026, 2031)  # per-year CSVs that always exist (even when empty)
 
 
 def write(path: Path, rows: list[list]) -> None:
@@ -113,8 +114,15 @@ def write(path: Path, rows: list[list]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     for year in sorted(by_year):
         _write_sheet(wb.create_sheet(str(year)), year, by_year[year])
-        write_csv(path.with_name(f"{path.stem}_{year}.csv"), by_year[year])
     wb.save(path)
+
+    # CSVs for Excel/Power Query. One file with every year (Year column) so a single query never needs
+    # touching when a new year starts, plus a file per year 2026-2030 (empty ones included) so per-year
+    # sheets can be set up once and keep working until 2031.
+    all_rows = sorted(rows, key=lambda r: (_to_date(r[IDX["Date"]]) or date.max, str(r[IDX["Name"]] or "")))
+    write_csv(path.with_name(f"{path.stem}_all.csv"), all_rows, with_year=True)
+    for year in sorted(set(CSV_YEARS) | set(by_year)):
+        write_csv(path.with_name(f"{path.stem}_{year}.csv"), by_year.get(year, []))
 
 
 def _write_sheet(ws, year: int, rows: list[list]) -> None:
@@ -161,7 +169,7 @@ def date_label(start: date | None, end: date | None) -> str:
     return f"{s_txt}, {start.year} \u2013 {e_txt}, {end.year}"
 
 
-def write_csv(path: Path, rows: list[list]) -> None:
+def write_csv(path: Path, rows: list[list], with_year: bool = False) -> None:
     """CSV for Power Query. Dates are one plain-text 'Date' column (e.g. 'Nov 30 – Dec 4, 2026'), rows already in
     date order, so Excel has nothing to convert: no serial numbers, no regional day/month mix-ups, no query edits."""
     import csv
@@ -169,9 +177,10 @@ def write_csv(path: Path, rows: list[list]) -> None:
     keep = [h for h in HEADERS if h != "End Date"]
     with path.open("w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
-        w.writerow(keep)
+        w.writerow((["Year"] if with_year else []) + keep)
         for r in rows:
-            out = []
+            d0 = _to_date(r[IDX["Date"]])
+            out = [d0.year if d0 else ""] if with_year else []
             for h in keep:
                 v = r[IDX[h]]
                 out.append(date_label(_to_date(r[IDX["Date"]]), _to_date(r[IDX["End Date"]])) if h == "Date"

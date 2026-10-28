@@ -287,3 +287,17 @@ def test_csv_dates_are_plain_readable_text(tmp_path):
     rows = list(csv.DictReader((tmp_path / "t_2026.csv").open(encoding="utf-8-sig")))
     assert [r["Date"] for r in rows] == ["Aug 3, 2026", "Aug 10\u201312, 2026", "Nov 30 \u2013 Dec 4, 2026"]
     assert "End Date" not in rows[0]
+
+
+def test_csv_all_years_file_and_empty_future_year_files(tmp_path):
+    path = tmp_path / "t.xlsx"
+    mk = lambda n, d: extract.Event(name=n, start=d, city="Seattle", region="Seattle")
+    workbook.merge(path, [mk("A", date(2026, 9, 1)), mk("B", date(2027, 3, 1)), mk("C", date(2028, 1, 5))])
+    import csv
+    allrows = list(csv.DictReader((tmp_path / "t_all.csv").open(encoding="utf-8-sig")))
+    assert [(r["Year"], r["Name"]) for r in allrows] == [("2026", "A"), ("2027", "B"), ("2028", "C")]
+    for y in range(2026, 2031):  # per-year files exist up to 2030, empty ones are header-only
+        assert (tmp_path / f"t_{y}.csv").exists()
+    assert list(csv.DictReader((tmp_path / "t_2030.csv").open(encoding="utf-8-sig"))) == []
+    from openpyxl import load_workbook
+    assert load_workbook(path).sheetnames == ["2026", "2027", "2028"]
