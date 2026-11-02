@@ -374,3 +374,10 @@ def test_happy_hour_dropped_even_from_channel_association():
 def test_region_from_event_name_when_text_is_vague():
     v = extract.classify("TechCon 365, DATACON & PWRCON Seattle 2027", "Microsoft", "Washington state", "", "", {}, cfg())
     assert (v.keep, v.region, v.city) == (True, "Seattle", "Seattle")
+
+
+def test_name_prefix_for_company_event_listings():
+    html = "<ul><li><a href='/wt/nyc'><h3>World Tour New York</h3></a> Dec 3, 2026 New York</li></ul>"
+    out = extract.parse_events(html, "http://sf.com/events", cfg(False),
+                               {"label": "SF", "host": "Salesforce", "name_prefix": "Salesforce "}, date(2026, 11, 2))
+    assert [(e.name, e.region, e.host) for e in out] == [("Salesforce World Tour New York", "New York", "Salesforce")]

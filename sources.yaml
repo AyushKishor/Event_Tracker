@@ -7,6 +7,10 @@
 # require_company: only keep events that mention one of the tracked companies
 # require_keyword: only keep events that mention a channel/partner keyword
 # host: default Organiser/Host when the page does not state one
+# name_prefix: put in front of event names that do not already say who runs them ("World Tour NYC" -> "Salesforce World Tour NYC")
+#
+# Company pages keep every event the company runs (no keyword needed), except Google Cloud, Oracle and SAP:
+# their pages are mostly webinars / other vendors' events, so they keep require_keyword.
 
 sources:
   # Channel Sales Association (channelsalesassociation.com) has no public events
@@ -14,15 +18,15 @@ sources:
   # if one appears, or paste event links you hear about from the community.
 
   # ---- Vendor flagships & partner programs ----
-  - {label: Microsoft events, url: "https://events.microsoft.com/", host: Microsoft, require_keyword: true}
+  - {label: Microsoft events, url: "https://events.microsoft.com/", host: Microsoft}
   - {label: Microsoft AI Tour, url: "https://aitour.microsoft.com/", host: Microsoft, name: "Microsoft AI Tour", name_with_heading: "Microsoft AI Tour"}
   - {label: Microsoft Ignite, url: "https://ignite.microsoft.com/en-US/home", host: Microsoft, name: "Microsoft Ignite", single: true}
-  - {label: AWS events, url: "https://aws.amazon.com/events/", host: AWS, require_keyword: true}
+  - {label: AWS events, url: "https://aws.amazon.com/events/", host: AWS}
   - {label: AWS re:Invent, url: "https://aws.amazon.com/events/", host: AWS, name: "AWS re:Invent", single: true}
   - {label: AWS Marketplace seller events, url: "https://aws.amazon.com/marketplace/resources/events/seller-conference", host: AWS}
   - {label: Google Cloud events, url: "https://cloud.google.com/events", host: Google, require_keyword: true}
   - {label: Google Cloud Next, url: "https://cloud.google.com/next", host: Google, name: "Google Cloud Next", single: true}
-  - {label: Salesforce events, url: "https://www.salesforce.com/events/", host: Salesforce, require_keyword: true}
+  - {label: Salesforce events, url: "https://www.salesforce.com/events/", host: Salesforce, name_prefix: "Salesforce "}
   - {label: Dreamforce, url: "https://www.salesforce.com/dreamforce/", host: Salesforce, name: "Dreamforce", single: true}
   - {label: ServiceNow events, url: "https://www.servicenow.com/events.html", host: ServiceNow}
   - {label: ServiceNow World Forum, url: "https://www.servicenow.com/events/world-forum.html", host: ServiceNow, name: "ServiceNow World Forum", single: true}
@@ -41,6 +45,25 @@ sources:
   - {label: Workday Rising, url: "https://rising.workday.com/us.html", host: Workday, name: "Workday Rising", single: true}
   - {label: Okta Oktane, url: "https://www.okta.com/oktane/", host: Okta, name: "Okta Oktane", single: true}
   - {label: NetApp events, url: "https://www.netapp.com/company/events/", host: NetApp}
+
+  # ---- Other target accounts' own flagship events (checked Nov 2026: each page shows its next date) ----
+  # Dynatrace Perform and VMware Explore are left out: their pages only gave pricing / non-US dates.
+  - {label: MongoDB.local, url: "https://www.mongodb.com/events/mongodb-local", host: MongoDB, name_pattern: "MongoDB\\.local [A-Z][A-Za-z .]+"}
+  - {label: Datadog DASH, url: "https://www.dashcon.io/", host: Datadog, name: "Datadog DASH", single: true}
+  - {label: IBM Think, url: "https://www.ibm.com/events/think", host: IBM, name: "IBM Think", single: true}
+  - {label: Adobe Summit, url: "https://summit.adobe.com/na/", host: Adobe, name: "Adobe Summit", single: true}
+  - {label: Atlassian Team, url: "https://events.atlassian.com/team/", host: Atlassian, name: "Atlassian Team", single: true}
+  - {label: Nutanix .NEXT, url: "https://www.nutanix.com/next", host: Nutanix, name: "Nutanix .NEXT", single: true}
+  - {label: Pure Accelerate, url: "https://www.purestorage.com/accelerate.html", host: Pure Storage, name: "Pure//Accelerate", single: true}
+  - {label: Commvault SHIFT, url: "https://www.commvault.com/shift", host: Commvault, name: "Commvault SHIFT", single: true}
+  - {label: Informatica World, url: "https://www.informaticaworld.com/", host: Informatica, name: "Informatica World", single: true}
+  - {label: Fortinet Accelerate, url: "https://www.fortinetaccelerate.com/", host: Fortinet, name: "Fortinet Accelerate", single: true}
+  - {label: Docusign Momentum, url: "https://momentum.docusign.com/", host: Docusign, name: "Docusign Momentum", single: true}
+  - {label: Zendesk Relate, url: "https://www.zendeskrelate.com/", host: Zendesk, name: "Zendesk Relate", single: true}
+  - {label: Qualtrics X4, url: "https://www.qualtrics.com/x4summit/", host: Qualtrics, name: "Qualtrics X4 Summit", single: true}
+  - {label: Acumatica Summit, url: "https://summit.acumatica.com/", host: Acumatica, name: "Acumatica Summit", single: true}
+  - {label: Blue Yonder ICON, url: "https://blueyonder.com/icon", host: Blue Yonder, name: "Blue Yonder ICON", single: true}
+  - {label: OpenAI DevDay, url: "https://openai.com/devday/", host: OpenAI, name: "OpenAI DevDay", single: true}
 
   # ---- Channel / partnership industry ----
   - {label: Channel Partners Conference, url: "https://channelpartnersconference.com/", name: "Channel Partners Conference & Expo", single: true}

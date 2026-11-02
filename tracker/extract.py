@@ -307,7 +307,7 @@ def _named_date_events(soup: BeautifulSoup, source: dict, url: str, today: date,
             name = " ".join(m.group(0).split()).strip(" ,.")
             window = text[max(0, m.start() - 80): m.end() + 120]
             found.setdefault((name, start), Event(
-                name=name, start=start, end=end, url=url, city=_city_in(name + " " + window, cities),
+                name=name, start=start, end=end, url=url, city=_city_in(name, cities),
                 location_text=window))
     elif source.get("name"):
         key = re.escape(source["name"].split(",")[0].strip())
@@ -464,6 +464,9 @@ def _keep(ev: Event, raw: list[Event], source: dict, settings: dict, url: str, t
     if source.get("name") and not source.get("name_with_heading") and not source.get("name_pattern"):
         # curated flagship pages: card/heading text is unreliable
         ev.name = f"{source['name']} {ev.start.year}"
+    prefix = source.get("name_prefix", "")
+    if prefix and not ev.name.lower().startswith(prefix.strip().lower()):
+        ev.name = prefix + ev.name
     # card/page fallbacks have little text of their own; look at the page too for tagging
     extra = page_text[:5000] if len(raw) == 1 and not ev.host and not source.get("name") else ""
     v = classify(ev.name, ev.host or source.get("host", ""), f"{ev.location_text} {ev.speakers}",
