@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import os
+import time
+from urllib.parse import urlparse
 import sys
 from datetime import date
 
@@ -65,8 +67,25 @@ def fetch_firecrawl(url: str) -> str | None:
         return None
 
 
+def discovery_queries(config: dict, today: date | None = None) -> list[tuple[str, str]]:
+    """(label, query) pairs: company searches plus city searches for the priority regions.
+
+    From July on, next year is searched too (that is when most next-year events are announced).
+    """
+    d = config.get("discovery", {})
+    today = today or date.today()
+    years = [today.year] + ([today.year + 1] if today.month >= 7 else [])
+    out: list[tuple[str, str]] = []
+    for year in years:
+        for company in d.get("companies") or list(config["companies"]):
+            out += [(company, t.format(company=company, year=year)) for t in d.get("queries", [])]
+        for city in d.get("cities", []):
+            out += [(city, t.format(city=city, year=year)) for t in d.get("city_queries", [])]
+    return out
+
+
 def discover(config: dict) -> list[dict]:
-    """Search the web for candidate event pages. Returns [{url, title, company}].
+    """Search the web for candidate event pages. Returns [{url, title, description, label}].
 
     Requires BRAVE_API_KEY; returns [] (with a warning) when absent or disabled.
     """
@@ -78,21 +97,25 @@ def discover(config: dict) -> list[dict]:
         _log("Discovery skipped: BRAVE_API_KEY not set.")
         return []
 
+    skip = tuple(d.get("exclude_domains", []))
     found: dict[str, dict] = {}
-    for company in d.get("companies") or list(config["companies"]):
-        for template in d.get("queries", []):
-            q = template.format(company=company, year=date.today().year)
-            try:
-                r = requests.get(
-                    "https://api.search.brave.com/res/v1/web/search",
-                    headers={"X-Subscription-Token": key, "Accept": "application/json"},
-                    params={"q": q, "count": d.get("results_per_query", 10)},
-                    timeout=TIMEOUT,
-                )
-                r.raise_for_status()
-            except requests.RequestException as e:
-                _log(f"  search failed: {q!r}: {e}")
+    for label, q in discovery_queries(config):
+        try:
+            r = requests.get(
+                "https://api.search.brave.com/res/v1/web/search",
+                headers={"X-Subscription-Token": key, "Accept": "application/json"},
+                params={"q": q, "count": d.get("results_per_query", 10)},
+                timeout=TIMEOUT,
+            )
+            r.raise_for_status()
+        except requests.RequestException as e:
+            _log(f"  search failed: {q!r}: {e}")
+            continue
+        for item in r.json().get("web", {}).get("results", []):
+            host = urlparse(item["url"]).netloc.lower()
+            if skip and host.endswith(skip):  # social/video/news hosts: no event pages worth scraping
                 continue
-            for item in r.json().get("web", {}).get("results", []):
-                found.setdefault(item["url"], {"url": item["url"], "title": item.get("title", ""), "company": company})
+            found.setdefault(item["url"], {"url": item["url"], "title": item.get("title", ""), "label": label,
+                                            "description": item.get("description", "")})
+        time.sleep(1.1)  # Brave free tier: 1 request/second
     return list(found.values())

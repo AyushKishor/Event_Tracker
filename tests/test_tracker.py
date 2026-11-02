@@ -301,3 +301,49 @@ def test_csv_all_years_file_and_empty_future_year_files(tmp_path):
     assert list(csv.DictReader((tmp_path / "t_2030.csv").open(encoding="utf-8-sig"))) == []
     from openpyxl import load_workbook
     assert load_workbook(path).sheetnames == ["2026", "2027", "2028"]
+
+
+def test_discovery_queries_cover_companies_and_cities():
+    from tracker import sources
+    c = cfg()
+    oct_q = [q for _, q in sources.discovery_queries(c, date(2026, 11, 2))]
+    assert "partner summit Seattle 2026" in oct_q and "partner summit Seattle 2027" in oct_q  # next year from July
+    assert "AWS channel partner event 2027" in oct_q
+    assert "channel partner event Bengaluru 2026" in oct_q
+    feb_q = [q for _, q in sources.discovery_queries(c, date(2027, 2, 1))]
+    assert not any("2028" in q for q in feb_q)
+    d = c["discovery"]
+    per_year = len(d["companies"]) * len(d["queries"]) + len(d["cities"]) * len(d["city_queries"])
+    assert len(oct_q) == 2 * per_year
+
+
+def test_discover_skips_social_hosts_and_needs_key(monkeypatch):
+    from tracker import sources
+    c = cfg()
+    monkeypatch.delenv("BRAVE_API_KEY", raising=False)
+    assert sources.discover(c) == []
+
+    class Resp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"web": {"results": [{"url": "https://www.linkedin.com/events/123", "title": "x"},
+                                        {"url": "https://example.com/partner-summit", "title": "Partner Summit"}]}}
+
+    monkeypatch.setenv("BRAVE_API_KEY", "k")
+    monkeypatch.setattr(sources.requests, "get", lambda *a, **k: Resp())
+    monkeypatch.setattr(sources.time, "sleep", lambda s: None)
+    hits = sources.discover(c)
+    assert [h["url"] for h in hits] == ["https://example.com/partner-summit"]
+
+
+def test_falls_through_to_later_parser_and_cleans_page_title():
+    # a card that gets filtered out (no company) must not hide the page-level event behind it
+    html = """<html><head><title>Home - Biz Apps Partner Summit</title></head><body>
+      <ul><li><a href="/x"><h3>Photo gallery</h3></a> Jul 29, 2027 Somewhere</li></ul>
+      <p>Microsoft partners: Super Early Bird August 3-4 2027 Renton, WA</p></body></html>"""
+    out = extract.parse_events(html, "http://bizapps", cfg(False), {"label": "d", "require_keyword": True},
+                               date(2026, 11, 2))
+    assert [(e.name, e.start, e.end, e.region) for e in out] == [
+        ("Biz Apps Partner Summit", date(2027, 8, 3), date(2027, 8, 4), "Seattle")]

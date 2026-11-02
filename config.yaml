@@ -81,6 +81,10 @@ regions:
     - Bellevue
     - Redmond
     - Kirkland
+    - Renton
+    - Bothell
+    - Issaquah
+    - Tacoma
   India:
     - India
     - Bengaluru
@@ -208,12 +212,21 @@ always_track:
 skip_words: [meetup, "user group", "happy hour", mixer, networking, cocktail, "study group", "study jam", "hack night",
   coffee, brunch, "office hours", "touch grass", "demo night", hackathon, devfest, "bob tv", "w/", community, student, university, reactor, "SBG", "chapter"]
 
-# Discovery searches (needs BRAVE_API_KEY). {company} is substituted per company.
+# Discovery searches (needs BRAVE_API_KEY). {company}/{city}/{year} are filled in; from July on next year is
+# searched too. Hits are scraped and pass the same region / relevance / small-event rules as everything else.
 discovery:
   enabled: true
-  results_per_query: 10
+  results_per_query: 8
   companies: [Microsoft, AWS, Google Cloud, Salesforce, ServiceNow, Oracle]  # keeps search volume low
   queries:
     - "{company} partner summit {year}"
     - "{company} channel partner event {year}"
     - "{company} partner ecosystem conference {year} speaker"
+  # One or two cities per priority region: catches third-party events the company pages never list.
+  cities: [New York, Seattle, Bellevue, San Francisco, San Jose, Austin, Dallas, Bengaluru, Mumbai, Hyderabad]
+  city_queries:
+    - "partner summit {city} {year}"
+    - "channel partner event {city} {year}"
+    - "alliances ecosystem conference {city} {year}"
+  exclude_domains: [linkedin.com, facebook.com, instagram.com, x.com, twitter.com, youtube.com, reddit.com,
+    wikipedia.org, glassdoor.com, indeed.com]

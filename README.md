@@ -21,6 +21,14 @@ python refresh.py [--no-discovery]
 python -m pytest
 ```
 
+## Web search (Discovery)
+Needs the `BRAVE_API_KEY` repo secret (free tier is enough: ~100 searches a month). Every run searches
+- the six core companies: "{company} partner summit / channel partner event / partner ecosystem conference {year}"
+- ten cities across the five regions (New York, Seattle, Bellevue, San Francisco, San Jose, Austin, Dallas,
+  Bengaluru, Mumbai, Hyderabad): "partner summit / channel partner event / alliances ecosystem conference {city} {year}"
+- from July on, next year as well. Hits are scraped (or, if the page blocks us, read from the search snippet) and go
+  through the same region / relevance / small-event rules. Queries and cities live under `discovery:` in `config.yaml`.
+
 ## What gets kept
 Mirrors the manually kept 2026 tracker (`scripts/coverage_check.py <xlsx>` replays any such sheet through the filters):
 - Events naming a tracked account (the six core partners plus the other target accounts in `config.yaml`), anywhere in the world; Region is `Other` outside the five priority regions.

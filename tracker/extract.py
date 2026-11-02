@@ -412,7 +412,10 @@ def _page_event(soup: BeautifulSoup, url: str, today: date | None = None) -> lis
     start, end = _range_from_match(m.group(1), today)
     if not start:
         return []
-    return [Event(name=title.strip(), start=start, end=end, url=url, location_text=text[:2000])]
+    # "Home - Biz Apps Partner Summit" / "Events | Acme" -> the meaningful part
+    parts = [p.strip() for p in re.split(r"\s+[|\-\u2013\u2014]\s+", title) if p.strip()]
+    parts = [p for p in parts if p.lower() not in {"home", "events", "event", "welcome", "register"}] or parts
+    return [Event(name=parts[0], start=start, end=end, url=url, location_text=text[:2000])]
 
 
 def parse_events(html: str, url: str, settings: dict, source: dict, today: date | None = None,
@@ -420,58 +423,61 @@ def parse_events(html: str, url: str, settings: dict, source: dict, today: date 
     """Parse one page into filtered, tagged events."""
     today = today or date.today()
     soup = BeautifulSoup(html, "html.parser")
-    raw = []
+    cities = settings.get("known_cities", [])
+    stages = []  # parsers in order of trust; the first one that yields kept events wins
     if markdown:
-        raw = _text_events(html, url, today, settings.get("known_cities", []),
-                           source.get("text_listing") == "after")
-        html = ""
-    elif source.get("card_selector"):
-        raw = _selector_events(soup, source["card_selector"], url, today)
-    elif source.get("text_listing"):
-        raw = _text_events(soup.get_text("\n"), url, today, settings.get("known_cities", []),
-                           source["text_listing"] == "after")
-    elif source.get("name_pattern") or (source.get("single") and source.get("name")):
-        raw = _named_date_events(BeautifulSoup(html, "html.parser"), source, url, today,
-                                 settings.get("known_cities", []))
-    raw = raw or ([] if markdown else (_jsonld_events(soup, url) or _embedded_json_events(soup, url)
-                  or _card_events(soup, url, today) or _page_event(soup, url, today)))
+        stages.append(lambda: _text_events(html, url, today, cities, source.get("text_listing") == "after"))
+    else:
+        if source.get("card_selector"):
+            stages.append(lambda: _selector_events(soup, source["card_selector"], url, today))
+        if source.get("text_listing"):
+            stages.append(lambda: _text_events(soup.get_text("\n"), url, today, cities,
+                                               source["text_listing"] == "after"))
+        if source.get("name_pattern") or (source.get("single") and source.get("name")):
+            stages.append(lambda: _named_date_events(BeautifulSoup(html, "html.parser"), source, url, today, cities))
+        stages += [lambda: _jsonld_events(soup, url), lambda: _embedded_json_events(soup, url),
+                   lambda: _card_events(soup, url, today), lambda: _page_event(soup, url, today)]
     page_text = soup.get_text(" ", strip=True)
-
-    companies = settings["_companies"]
-    regions = settings["_regions"]
-    keywords = settings["keywords"]
     horizon = _add_months(today, settings["lookahead_months"])
-    results: list[Event] = []
 
-    for ev in raw:
-        if not (today <= ev.start <= horizon):
-            continue
-        if JUNK_NAME_RE.search(ev.name) or ev.name.startswith("http"):
-            if not source.get("name"):
-                continue
-        if source.get("name_with_heading"):  # listing of cities / editions, e.g. Microsoft AI Tour
-            ev.city = ev.city or ev.name
-            ev.name = f"{source['name_with_heading']} - {ev.name}"
-        if source.get("name") and not source.get("name_with_heading") and not source.get("name_pattern"):
-            # curated flagship pages: card/heading text is unreliable
-            ev.name = f"{source['name']} {ev.start.year}"
-        # card/page fallbacks have little text of their own; look at the page too for tagging
-        extra = page_text[:5000] if len(raw) == 1 and not ev.host and not source.get("name") else ""
-        v = classify(ev.name, ev.host or source.get("host", ""), f"{ev.location_text} {ev.speakers}",
-                     ev.city, ev.fmt, source, settings, extra)
-        if not v.keep:
-            continue
-        ev.region, ev.host, ev.companies = v.region, v.host, v.companies
-        ev.city = ev.city or v.city
-        ev.fmt = ev.fmt or ("Virtual" if v.virtual else "")
-        ev.role = v.role
-        ev.source = source.get("label", url)
-        if INVITE_RE.search(f"{ev.location_text} {extra}") and not ev.cost:
-            ev.cost = "Invite only"
-        results.append(ev)
+    results: list[Event] = []
+    for stage in stages:
+        raw = stage()
+        results = [ev for ev in raw if _keep(ev, raw, source, settings, url, today, horizon, page_text)]
+        if results:
+            break
     if source.get("single") and results:  # one-event pages: keep the nearest upcoming date only
         results = [min(results, key=lambda e: e.start)]
     return results
+
+
+def _keep(ev: Event, raw: list[Event], source: dict, settings: dict, url: str, today: date, horizon: date,
+          page_text: str) -> bool:
+    """Filter + tag one parsed event in place. True if it belongs in the tracker."""
+    if not (today <= ev.start <= horizon):
+        return False
+    if (JUNK_NAME_RE.search(ev.name) or ev.name.startswith("http")) and not source.get("name"):
+        return False
+    if source.get("name_with_heading"):  # listing of cities / editions, e.g. Microsoft AI Tour
+        ev.city = ev.city or ev.name
+        ev.name = f"{source['name_with_heading']} - {ev.name}"
+    if source.get("name") and not source.get("name_with_heading") and not source.get("name_pattern"):
+        # curated flagship pages: card/heading text is unreliable
+        ev.name = f"{source['name']} {ev.start.year}"
+    # card/page fallbacks have little text of their own; look at the page too for tagging
+    extra = page_text[:5000] if len(raw) == 1 and not ev.host and not source.get("name") else ""
+    v = classify(ev.name, ev.host or source.get("host", ""), f"{ev.location_text} {ev.speakers}",
+                 ev.city, ev.fmt, source, settings, extra)
+    if not v.keep:
+        return False
+    ev.region, ev.host, ev.companies = v.region, v.host, v.companies
+    ev.city = ev.city or v.city
+    ev.fmt = ev.fmt or ("Virtual" if v.virtual else "")
+    ev.role = v.role
+    ev.source = source.get("label", url)
+    if INVITE_RE.search(f"{ev.location_text} {extra}") and not ev.cost:
+        ev.cost = "Invite only"
+    return True
 
 
 @dataclass

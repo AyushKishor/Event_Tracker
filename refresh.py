@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import html
 import sys
 from pathlib import Path
 
@@ -20,12 +21,13 @@ def load_config(path: Path) -> dict:
     return cfg
 
 
-def scrape(source: dict, cfg: dict) -> list[extract.Event]:
+def scrape(source: dict, cfg: dict, render: bool = True) -> list[extract.Event]:
     url = source["url"]
     html = sources.fetch(url)
     events = extract.parse_events(html, url, cfg, source) if html else []
     # static HTML had nothing usable (JS-rendered or bot-blocked): try a browser, then Firecrawl
-    for fallback, is_markdown in ((sources.fetch_rendered, False), (sources.fetch_firecrawl, True)):
+    fallbacks = ((sources.fetch_rendered, False), (sources.fetch_firecrawl, True)) if render else ()
+    for fallback, is_markdown in fallbacks:
         if events:
             break
         page = fallback(url)
@@ -60,8 +62,11 @@ def main() -> int:
         for hit in sources.discover(cfg):
             if hit["url"] in known:
                 continue
-            src = {"label": f"Discovery ({hit['company']})", "url": hit["url"], "require_keyword": True}
-            events = scrape(src, cfg)
+            src = {"label": f"Discovery ({hit['label']})", "url": hit["url"], "require_keyword": True}
+            events = scrape(src, cfg, render=False)  # hundreds of hits: plain fetch only, keeps the job short
+            if not events and hit.get("description"):  # blocked/JS page: the search snippet often has date + city
+                snippet = f"<html><head><title>{html.escape(hit['title'])}</title></head><body><p>{html.escape(hit['description'])}</p></body></html>"
+                events = extract.parse_events(snippet, hit["url"], cfg, src)
             if events:
                 print(f"Discovery: {hit['url']} -> {len(events)} event(s)")
             all_events += events

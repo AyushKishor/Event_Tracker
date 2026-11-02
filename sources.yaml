@@ -46,7 +46,7 @@ sources:
   - {label: Channel Partners Conference, url: "https://channelpartnersconference.com/", name: "Channel Partners Conference & Expo", single: true}
   - {label: MSP Summit / events calendar, url: "https://themspsummit.com/events-calendar/"}
   - {label: Channel Pro Network, url: "https://events.channelpronetwork.com/", host: "ChannelPro Network"}
-  - {label: PartnerTechX, url: "https://channelfocuscommunity.net/partnertechx-2026/", name: "PartnerTechX", single: true, host: "Channel Focus Community"}
+  - {label: PartnerTechX, url: "https://channelfocuscommunity.net/partnertechx-2027/", name: "PartnerTechX", single: true, host: "Channel Focus Community"}
   - {label: Xchange (The Channel Co), url: "https://event.thechannelco.com/xchange-march/", name: "Xchange", single: true, host: "The Channel Company"}
 
   # ---- Channel communities & media (Partnership Leaders, CMA, CRN, Channel Futures, Channel Focus, CSA) ----
