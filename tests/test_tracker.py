@@ -341,8 +341,8 @@ def test_discover_skips_social_hosts_and_needs_key(monkeypatch):
 def test_falls_through_to_later_parser_and_cleans_page_title():
     # a card that gets filtered out (no company) must not hide the page-level event behind it
     html = """<html><head><title>Home - Biz Apps Partner Summit</title></head><body>
-      <ul><li><a href="/x"><h3>Photo gallery</h3></a> Jul 29, 2027 Somewhere</li></ul>
-      <p>Microsoft partners: Super Early Bird August 3-4 2027 Renton, WA</p></body></html>"""
+      <p>Microsoft partners: Super Early Bird August 3-4 2027 Renton, WA</p>
+      <ul><li><a href="/x"><h3>Photo gallery</h3></a> Jul 29, 2027 Somewhere</li></ul></body></html>"""
     out = extract.parse_events(html, "http://bizapps", cfg(False), {"label": "d", "require_keyword": True},
                                date(2026, 11, 2))
     assert [(e.name, e.start, e.end, e.region) for e in out] == [
