@@ -522,7 +522,10 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
                 break
     virtual = (fmt == "Virtual" or bool(VIRTUAL_RE.search(f"{name} {text}"))) \
         and not _city_in(f"{city} {text}", settings.get("known_cities", []))
-    region = detect_region(f"{city} {text}", regions)
+    # the city field is most reliable, then the event name ("TechCon 365 Seattle"), then the surrounding text
+    region = detect_region(city, regions) or detect_region(name, regions) or detect_region(text, regions)
+    if not city:
+        city = _city_in(name, settings.get("known_cities", []))
     in_scope = bool(region) or (virtual and settings["include_virtual"])
     if virtual and not region:
         region = "Virtual"
@@ -534,12 +537,12 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
     partner_kw = has_keyword(f"{name} {text}", settings["keywords"])
     small = has_keyword(f"{name} {host}", settings.get("skip_words", []))
 
-    # Company-organised or partnership events only: community meetups, user groups and mixers are out
-    # unless the name is a tracked flagship or a known channel-industry event.
+    # Company-organised or partnership events only: community meetups, user groups and happy hours are out
+    # (even from channel associations) unless the name is a tracked flagship.
+    if small and not always:
+        return Verdict(False, "community meetup / small social event")
     if always or channel_event or source.get("trusted"):
         relevant = True
-    elif small:
-        return Verdict(False, "community meetup / small social event")
     else:
         relevant = host_company or bool(detect_companies(name, companies)) or (bool(found) and partner_kw)
     if not relevant:

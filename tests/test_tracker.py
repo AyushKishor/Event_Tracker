@@ -49,7 +49,10 @@ def test_region_detection():
     assert extract.detect_region("Austin", r) == "Texas"
     assert extract.detect_region("Bengaluru, Karnataka", r) == "India"
     assert extract.detect_region("Redmond", r) == "Seattle"
-    assert extract.detect_region("Chicago", r) == ""
+    assert extract.detect_region("Chicago", r) == "Other US"
+    assert extract.detect_region("Las Vegas, NV", r) == "Other US"
+    assert extract.detect_region("Toronto", r) == ""
+    assert extract.detect_region("Indianapolis", r) == "Other US"  # not "India"
     assert extract.detect_region("Brooklyn, NY", r) == "New York"
 
 
@@ -66,7 +69,7 @@ def test_parse_filters_region_window_and_company():
     out = extract.parse_events(html, "http://x", cfg(), {"label": "t", "require_company": True}, TODAY)
     assert [e.name for e in out] == ["AWS Partner Summit", "Google Cloud Partner Day", "Oracle Partner Webinar"]
     aws, google, oracle = out
-    assert (google.region, google.companies) == ("Other", ["Google"])  # out-of-region flagship-style kept
+    assert (google.region, google.companies) == ("Other US", ["Google"])  # out-of-region flagship-style kept
     assert (aws.region, aws.companies, aws.role, aws.speakers) == ("Seattle", ["AWS"], "Host", "Jane Doe")
     assert oracle.region == "Virtual"
 
@@ -232,9 +235,12 @@ def test_default_config_is_strict_about_regions():
         ev("Microsoft AI Tour - Mumbai", "2027-02-14", "Mumbai", "Microsoft"),
         ev("Microsoft AI Tour - New York", "2027-02-15", "New York", "Microsoft"),
         ev("Microsoft AI Tour - San Francisco", "2027-02-16", "San Francisco", "Microsoft"),
+        ev("Microsoft AI Tour - Chicago", "2027-02-17", "Chicago", "Microsoft"),
+        ev("AWS re:Invent 2027", "2027-02-18", "Las Vegas, NV", "AWS"),
     ])
     out = extract.parse_events(html, "http://x", shipped, {"label": "t"}, TODAY)
-    assert [e.region for e in out] == ["Seattle", "Texas", "India", "New York", "Bay Area"]
+    # all of the US + India; Toronto and Utrecht (non-US) are dropped
+    assert [e.region for e in out] == ["Seattle", "Texas", "India", "New York", "Bay Area", "Other US", "Other US"]
 
 
 def test_partnership_leaders_cards_and_borrowed_city():
@@ -347,3 +353,24 @@ def test_falls_through_to_later_parser_and_cleans_page_title():
                                date(2026, 11, 2))
     assert [(e.name, e.start, e.end, e.region) for e in out] == [
         ("Biz Apps Partner Summit", date(2027, 8, 3), date(2027, 8, 4), "Seattle")]
+
+
+def test_same_name_same_year_is_one_event_unless_cities_differ(tmp_path):
+    path = tmp_path / "t.xlsx"
+    E = lambda n, d, c: extract.Event(name=n, start=d, city=c, region="Other US")
+    events = [E("Oracle AI World", date(2026, 10, 26), "Las Vegas"),
+              E("Oracle AI World 2026", date(2026, 11, 25), "Las Vegas"),   # same edition, wrong scraped date
+              E("World Forum", date(2026, 9, 10), "New York"),
+              E("World Forum", date(2026, 10, 6), "Mumbai")]                 # different city: separate event
+    assert workbook.merge(path, events) == (3, 3)
+
+
+def test_happy_hour_dropped_even_from_channel_association():
+    v = extract.classify("CMA San Diego Happy Hour", "Channel Marketing Association", "", "San Diego", "",
+                         {"trusted": True}, cfg())
+    assert not v.keep
+
+
+def test_region_from_event_name_when_text_is_vague():
+    v = extract.classify("TechCon 365, DATACON & PWRCON Seattle 2027", "Microsoft", "Washington state", "", "", {}, cfg())
+    assert (v.keep, v.region, v.city) == (True, "Seattle", "Seattle")

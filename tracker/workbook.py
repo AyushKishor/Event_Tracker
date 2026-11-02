@@ -63,10 +63,15 @@ def _norm(name) -> str:
     return re.sub(r"\b20\d\d\b", "", n).strip()
 
 
-def _same_event(a: tuple[date, str], b: tuple[date, str]) -> bool:
+def _same_event(a: tuple, b: tuple) -> bool:
     """Start dates within 3 days (sources disagree by a day) and one normalised name is a prefix of the other (e.g. '... 2027' vs '... 2027, co-located with ...')."""
-    (da, na), (db, nb) = a, b
-    if not da or not db or abs((da - db).days) > 3 or not na or not nb:
+    (da, na, ca), (db, nb, cb) = a, b
+    if not da or not db or not na or not nb:
+        return False
+    same_city = not ca or not cb or ca == cb
+    if na == nb and da.year == db.year and same_city:  # "Oracle AI World" vs "Oracle AI World 2026": one a year
+        return True
+    if abs((da - db).days) > 3:
         return False
     short, long_ = sorted((na, nb), key=len)
     return len(short) >= 8 and long_.startswith(short)
@@ -82,11 +87,11 @@ def merge(path: Path, events: list[Event], today: date | None = None, earliest: 
         rows = [r for r in rows if (_to_date(r[IDX["Date"]]) or date.max) >= earliest]
     events = [e for e in events if not earliest or e.start >= earliest]
     seen = {k for k in map(row_key, rows) if k}
-    by_date = [(_to_date(r[IDX["Date"]]), _norm(r[IDX["Name"]])) for r in rows]
+    by_date = [(_to_date(r[IDX["Date"]]), _norm(r[IDX["Name"]]), _norm(r[IDX["City"]])) for r in rows]
     added = 0
     for ev in events:
         k = event_key(ev.name, ev.start, ev.city)
-        sig = (ev.start, _norm(ev.name))
+        sig = (ev.start, _norm(ev.name), _norm(ev.city))
         if k in seen or any(_same_event(sig, existing) for existing in by_date):
             continue
         seen.add(k)
