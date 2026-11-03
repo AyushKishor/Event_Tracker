@@ -55,7 +55,7 @@ def lookup_by_search(src: dict, cfg: dict) -> list[extract.Event]:
     for year in (today.year, today.year + 1):
         for hit in sources.search(f"{src['name']} {year} dates location", 5):
             for match in filter(None, (src["name"], short)):
-                events = snippet_events(hit, {**src, "name": match, "url": hit["url"]}, cfg)
+                events = snippet_events(hit, {**src, "name": match, "url": hit["url"], "strict_year": True}, cfg)
                 if events:
                     for e in events:
                         e.name = f"{src['name']} {e.start.year}"
@@ -108,7 +108,8 @@ def main() -> int:
         for hit in sources.discover(cfg):
             if hit["url"] in known:
                 continue
-            src = {"label": f"Discovery ({hit['label']})", "url": hit["url"], "require_keyword": True}
+            src = {"label": f"Discovery ({hit['label']})", "url": hit["url"], "require_keyword": True,
+                   "strict_year": True, "strict_title": True}
             events = scrape(src, cfg, render=False)  # hundreds of hits: plain fetch only, keeps the job short
             if not events and hit.get("description"):  # blocked/JS page: the search snippet often has date + city
                 events = snippet_events(hit, src, cfg)

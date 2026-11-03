@@ -456,6 +456,17 @@ def _keep(ev: Event, raw: list[Event], source: dict, settings: dict, url: str, t
     """Filter + tag one parsed event in place. True if it belongs in the tracker."""
     if not (today <= ev.start <= horizon):
         return False
+    years_named = {int(y) for y in re.findall(r"\b(20\d\d)\b", ev.name)}
+    if years_named and ev.start.year not in years_named and not source.get("name"):
+        return False  # "Google Cloud Next 2026" with a 2027 date: an old page, year guessed wrong
+    if source.get("strict_year") and str(ev.start.year) not in f"{ev.name} {ev.location_text}":
+        return False  # search snippets: only trust dates written with their year
+    if source.get("strict_title"):  # search results: page titles, blogs and company names are not events
+        if SEARCH_JUNK_RE.search(ev.name):
+            return False
+        if not (EVENT_WORD_RE.search(ev.name) or has_keyword(ev.name, settings.get("always_track", []))
+                or has_keyword(ev.name, settings.get("channel_events", []))):
+            return False
     if (JUNK_NAME_RE.search(ev.name) or ev.name.startswith("http")) and not source.get("name"):
         return False
     if source.get("name_with_heading"):  # listing of cities / editions, e.g. Microsoft AI Tour
@@ -559,6 +570,15 @@ def classify(name: str, host: str, text: str, city: str, fmt: str, source: dict,
 
 
 JUNK_NAME_RE = re.compile(r"^([A-Z][A-Za-z .']+, [A-Z]{2}$|learn more|register|check out|what.?s next|read more|save the date|see you|sign up|view|explore)\b", re.IGNORECASE)
+SEARCH_JUNK_RE = re.compile(
+    r"^(events?|home|calendar|calendar of events|events archive|partner events calendar|ecosystem events)$"
+    r"|\b(faq|what'?s new|what is|a look back|look back|know before|guide|webinars|blog|archive|call for speakers"
+    r"|recap|highlights|\d+ ways|how to|top \d+|best )\b|^(meet|join us)\b|^\u2192",
+    re.IGNORECASE)
+EVENT_WORD_RE = re.compile(
+    r"\b(summit|conference|world|forum|expo|tour|connect|live|week|symposium|meeting|kickoff|devday|days?|"
+    r"insight|sapphire|knowledge|ignite|invent|dreamforce|next|accelerate|momentum|relate|perform|think|team|"
+    r"rising|oktane|explore|xchange|catalyst|icon|shift|tdx|connections|gtc)\b", re.IGNORECASE)
 INVITE_RE = re.compile(r"\b(invite[- ]only|by invitation|invitation only|application[- ]based)\b", re.IGNORECASE)
 
 

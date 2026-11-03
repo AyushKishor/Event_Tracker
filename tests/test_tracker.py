@@ -442,3 +442,17 @@ def test_co_branded_x_meetups_are_small():
                          "", "San Francisco", "", {}, cfg())
     assert not v.keep
     assert extract.classify("XChange 2027", "The Channel Company", "", "", "", {}, cfg()).keep  # 'Xchange' is not 'x'
+
+
+def test_search_results_need_real_event_titles_and_explicit_years():
+    src = {"label": "Discovery", "require_keyword": False, "strict_year": True, "strict_title": True}
+    def page(title, body):
+        return f"<html><head><title>{title}</title></head><body><p>{title} {body}</p></body></html>"
+    today, c = date(2026, 11, 3), cfg()
+    keep = extract.parse_events(page("AWS Summit New York City", "AWS partners June 17, 2027 New York"), "u", c, src, today)
+    assert [e.name for e in keep] == ["AWS Summit New York City"]
+    for title, body in [("Calendar of Events", "AWS partner events Dec 1, 2026 New York"),
+                        ("FAQ: Google Cloud Next 2026", "Google partners April 22-24 Las Vegas"),   # no year: rolled
+                        ("Google Cloud Next 2026", "Google partners April 22-24, 2027 Las Vegas"),  # year mismatch
+                        ("TD SYNNEX", "Google Cloud partner Oct 20, 2027 Seattle")]:                # not an event
+        assert extract.parse_events(page(title, body), "u", c, src, today) == [], title
