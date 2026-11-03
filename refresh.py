@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import html
 import sys
+from datetime import date
 from pathlib import Path
 
 import yaml
@@ -36,6 +37,41 @@ def scrape(source: dict, cfg: dict, render: bool = True) -> list[extract.Event]:
     return events
 
 
+def snippet_events(hit: dict, src: dict, cfg: dict) -> list[extract.Event]:
+    """Read date/place from a search result's title + snippet (for pages we cannot or did not fetch)."""
+    page = (f"<html><head><title>{html.escape(hit['title'])}</title></head>"
+            f"<body><p>{html.escape(hit['title'])} {html.escape(hit['description'])}</p></body></html>")
+    return extract.parse_events(page, hit["url"], cfg, src)
+
+
+def lookup_by_search(src: dict, cfg: dict) -> list[extract.Event]:
+    """Search for one named flagship ("ServiceNow Knowledge 2027") and read its date from the result snippets."""
+    if not sources.search_provider():
+        return []
+    today = date.today()
+    host = src.get("host", "")
+    # results often drop the company ("Knowledge 2027", not "ServiceNow Knowledge 2027"): match the short name too
+    short = src["name"][len(host):].strip() if host and src["name"].lower().startswith(host.lower()) else ""
+    for year in (today.year, today.year + 1):
+        for hit in sources.search(f"{src['name']} {year} dates location", 5):
+            for match in filter(None, (src["name"], short)):
+                events = snippet_events(hit, {**src, "name": match, "url": hit["url"]}, cfg)
+                if events:
+                    for e in events:
+                        e.name = f"{src['name']} {e.start.year}"
+                        e.url, e.source = src["url"], f"{src['label']} (search)"
+                    return events
+    return []
+
+
+def placeholder(src: dict, cfg: dict) -> extract.Event:
+    """A 'Date TBD' row for a tracked flagship whose next date is not published yet."""
+    host = src.get("host", "")
+    return extract.Event(name=src["name"], start=None, host=host, region="TBD", url=src["url"],
+                         companies=extract.detect_companies(f"{src['name']} {host}", cfg["_companies"]),
+                         source=f"{src['label']} (date not announced)")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--config", type=Path, default=ROOT / "config.yaml")
@@ -48,14 +84,24 @@ def main() -> int:
     watchlist = yaml.safe_load(args.sources.read_text())["sources"]
 
     all_events: list[extract.Event] = []
-    failed: list[str] = []
+    failed: list[dict] = []
     for src in watchlist:
         print(f"Watchlist: {src['label']}")
         events = scrape(src, cfg)
         print(f"  {len(events)} matching event(s)")
         if not events:
-            failed.append(src["label"])
+            failed.append(src)
         all_events += events
+
+    # Named flagships whose page gave no date (blocked site, or next edition not announced on it yet):
+    # look the event up by name; if still nothing, keep it as a 'Date TBD' row for a later run to fill in.
+    for src in [s for s in failed if s.get("name") and not s.get("name_with_heading")]:
+        found = lookup_by_search(src, cfg) if not args.no_discovery else []
+        if found:
+            print(f"Search lookup: {src['name']} -> {found[0].start}")
+            all_events += found
+        else:
+            all_events.append(placeholder(src, cfg))
 
     if not args.no_discovery:
         known = {s["url"] for s in watchlist}
@@ -65,8 +111,7 @@ def main() -> int:
             src = {"label": f"Discovery ({hit['label']})", "url": hit["url"], "require_keyword": True}
             events = scrape(src, cfg, render=False)  # hundreds of hits: plain fetch only, keeps the job short
             if not events and hit.get("description"):  # blocked/JS page: the search snippet often has date + city
-                snippet = f"<html><head><title>{html.escape(hit['title'])}</title></head><body><p>{html.escape(hit['description'])}</p></body></html>"
-                events = extract.parse_events(snippet, hit["url"], cfg, src)
+                events = snippet_events(hit, src, cfg)
             if events:
                 print(f"Discovery: {hit['url']} -> {len(events)} event(s)")
             all_events += events
@@ -74,7 +119,8 @@ def main() -> int:
     added, total = workbook.merge(args.output, all_events, earliest=cfg.get("earliest_date"))
     print(f"\nAdded {added} new event(s); {total} total in {args.output.name}")
     if failed:
-        print("Sources with no matching events (check manually): " + "; ".join(failed), file=sys.stderr)
+        print("Sources with no matching events (check manually): " + "; ".join(s["label"] for s in failed),
+              file=sys.stderr)
     return 0
 
 

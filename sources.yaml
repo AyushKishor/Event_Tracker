@@ -7,6 +7,8 @@
 # require_company: only keep events that mention one of the tracked companies
 # require_keyword: only keep events that mention a channel/partner keyword
 # host: default Organiser/Host when the page does not state one
+# Named flagships (name + single) whose page shows no date are looked up by web search; if still nothing, they
+# stay in the sheet as 'Date TBD' until a later run finds the date.
 # name_prefix: put in front of event names that do not already say who runs them ("World Tour NYC" -> "Salesforce World Tour NYC")
 #
 # Company pages keep every event the company runs (no keyword needed), except Google Cloud, Oracle and SAP:
@@ -29,6 +31,7 @@ sources:
   - {label: Salesforce events, url: "https://www.salesforce.com/events/", host: Salesforce, name_prefix: "Salesforce "}
   - {label: Dreamforce, url: "https://www.salesforce.com/dreamforce/", host: Salesforce, name: "Dreamforce", single: true}
   - {label: ServiceNow events, url: "https://www.servicenow.com/events.html", host: ServiceNow}
+  - {label: ServiceNow Knowledge, url: "https://www.servicenow.com/events/knowledge.html", host: ServiceNow, name: "ServiceNow Knowledge", single: true}
   - {label: ServiceNow World Forum, url: "https://www.servicenow.com/events/world-forum.html", host: ServiceNow, name: "ServiceNow World Forum", single: true}
   - {label: Oracle events, url: "https://www.oracle.com/events/", host: Oracle, require_keyword: true}
   - {label: Oracle AI World, url: "https://www.oracle.com/ai-world/", host: Oracle, name: "Oracle AI World", single: true}
@@ -37,14 +40,17 @@ sources:
   # ---- Other target accounts tracked in the 2026 sheet ----
   - {label: NVIDIA GTC, url: "https://www.nvidia.com/gtc/events/", host: NVIDIA, name_pattern: "NVIDIA GTC(?: [A-Za-z.,' ]+?)? 20\\d\\d"}
   - {label: SAP events, url: "https://www.sap.com/events.html", host: SAP, require_keyword: true}
+  - {label: SAP Sapphire, url: "https://www.sap.com/events/sapphire.html", host: SAP, name: "SAP Sapphire", single: true}
+  - {label: SAP Connect, url: "https://www.sap.com/events.html", host: SAP, name: "SAP Connect", single: true}
   - {label: Snowflake events, url: "https://www.snowflake.com/en/summit/", host: Snowflake, name: "Snowflake Summit", single: true}
   - {label: Databricks Data+AI Summit, url: "https://www.databricks.com/dataaisummit", host: Databricks, name: "Databricks Data+AI Summit", single: true}
   - {label: Cloudflare Connect, url: "https://www.cloudflare.com/en-gb/lp/cloudflare-connect-2026/", host: Cloudflare, name: "Cloudflare Connect", single: true}
-  - {label: Dell Technologies World, url: "https://www.dell.com/en-us/dt/dell-technologies-world/index.htm", host: Dell}
+  - {label: Dell Technologies World, url: "https://www.dell.com/en-us/dt/dell-technologies-world/index.htm", host: Dell, name: "Dell Technologies World", single: true}
   - {label: Cisco Live, url: "https://www.ciscolive.com/global.html", host: Cisco, name: "Cisco Live", single: true}
   - {label: Workday Rising, url: "https://rising.workday.com/us.html", host: Workday, name: "Workday Rising", single: true}
   - {label: Okta Oktane, url: "https://www.okta.com/oktane/", host: Okta, name: "Okta Oktane", single: true}
   - {label: NetApp events, url: "https://www.netapp.com/company/events/", host: NetApp}
+  - {label: NetApp INSIGHT, url: "https://www.netapp.com/insight/", host: NetApp, name: "NetApp INSIGHT", single: true}
 
   # ---- Other target accounts' own flagship events (checked Nov 2026: each page shows its next date) ----
   # Dynatrace Perform and VMware Explore are left out: their pages only gave pricing / non-US dates.

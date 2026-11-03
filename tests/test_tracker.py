@@ -381,3 +381,57 @@ def test_name_prefix_for_company_event_listings():
     out = extract.parse_events(html, "http://sf.com/events", cfg(False),
                                {"label": "SF", "host": "Salesforce", "name_prefix": "Salesforce "}, date(2026, 11, 2))
     assert [(e.name, e.region, e.host) for e in out] == [("Salesforce World Tour New York", "New York", "Salesforce")]
+
+
+def test_tbd_row_kept_then_replaced_when_date_found(tmp_path):
+    path = tmp_path / "t.xlsx"
+    tbd = extract.Event(name="Datadog DASH", start=None, host="Datadog", region="TBD")
+    assert workbook.merge(path, [tbd], date(2026, 11, 3), earliest=date(2026, 8, 1)) == (1, 1)
+    assert workbook.merge(path, [tbd], date(2026, 11, 3), earliest=date(2026, 8, 1)) == (0, 1)  # no duplicate TBD
+    import csv
+    row = list(csv.DictReader((tmp_path / "t_all.csv").open(encoding="utf-8-sig")))[0]
+    assert (row["Year"], row["Date"], row["Name"]) == ("TBD", "TBD", "Datadog DASH")
+    from openpyxl import load_workbook
+    assert "Date TBD" in load_workbook(path).sheetnames
+
+    dated = extract.Event(name="Datadog DASH 2027", start=date(2027, 6, 8), city="New York", region="New York")
+    assert workbook.merge(path, [dated], date(2026, 11, 3)) == (1, 1)  # replaced, not added alongside
+    assert [r[0] for r in workbook.load_rows(path)] == ["Datadog DASH 2027"]
+    # a dated upcoming row means no new TBD placeholder is added for it
+    assert workbook.merge(path, [extract.Event(name="Datadog DASH", start=None)], date(2026, 11, 3)) == (0, 1)
+
+
+def test_tavily_search_and_flagship_lookup(monkeypatch):
+    from tracker import sources
+    import refresh
+
+    class Resp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"results": [{"url": "https://www.servicenow.com/events/knowledge.html",
+                                 "title": "Knowledge 2027 | ServiceNow",
+                                 "content": "Knowledge 2027 May 5-7, 2027 | Las Vegas. Celebrate 20 years..."}]}
+
+    calls = []
+    monkeypatch.delenv("BRAVE_API_KEY", raising=False)
+    monkeypatch.setenv("TAVILY_API_KEY", "tvly-test")
+    monkeypatch.setattr(sources.requests, "post", lambda url, **k: calls.append((url, k["json"]["query"])) or Resp())
+    monkeypatch.setattr(sources.time, "sleep", lambda s: None)
+    assert sources.search_provider() == "tavily"
+    hits = sources.search("ServiceNow Knowledge 2027")
+    assert hits[0]["description"].startswith("Knowledge 2027") and calls[0][0] == "https://api.tavily.com/search"
+
+    src = {"label": "ServiceNow Knowledge", "url": "https://www.servicenow.com/events/knowledge.html",
+           "host": "ServiceNow", "name": "ServiceNow Knowledge", "single": True}
+    found = refresh.lookup_by_search(src, cfg(False))  # snippet says "Knowledge 2027", not "ServiceNow Knowledge"
+    assert [(e.name, e.start, e.end, e.region) for e in found] == [
+        ("ServiceNow Knowledge 2027", date(2027, 5, 5), date(2027, 5, 7), "Other US")]
+
+
+def test_placeholder_for_undated_flagship():
+    import refresh
+    ev = refresh.placeholder({"label": "Datadog DASH", "url": "https://www.dashcon.io/", "host": "Datadog",
+                              "name": "Datadog DASH", "single": True}, cfg())
+    assert (ev.name, ev.start, ev.region, ev.companies) == ("Datadog DASH", None, "TBD", ["Datadog"])

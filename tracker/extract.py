@@ -25,7 +25,7 @@ VIRTUAL_RE = re.compile(r"\b(virtual|online|webinar|livestream|live stream)\b", 
 @dataclass
 class Event:
     name: str
-    start: date
+    start: date | None  # None = date not announced yet (shown as TBD)
     end: date | None = None
     host: str = ""
     city: str = ""

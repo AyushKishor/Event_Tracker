@@ -345,7 +345,7 @@ always_track:
 skip_words: [meetup, "user group", "happy hour", mixer, networking, cocktail, "study group", "study jam", "hack night",
   coffee, brunch, "office hours", "touch grass", "demo night", hackathon, devfest, "bob tv", "w/", community, student, university, reactor, "SBG", "chapter"]
 
-# Discovery searches (needs BRAVE_API_KEY). {company}/{city}/{year} are filled in; from July on next year is
+# Discovery searches (needs TAVILY_API_KEY - free 1,000 searches/month - or BRAVE_API_KEY). {company}/{city}/{year} are filled in; from July on next year is
 # searched too. Hits are scraped and pass the same region / relevance / small-event rules as everything else.
 discovery:
   enabled: true

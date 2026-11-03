@@ -84,38 +84,64 @@ def discovery_queries(config: dict, today: date | None = None) -> list[tuple[str
     return out
 
 
+def search_provider() -> str | None:
+    """Which web search API is configured: Tavily (free: 1,000 searches/month, no card) or Brave."""
+    if os.environ.get("TAVILY_API_KEY"):
+        return "tavily"
+    if os.environ.get("BRAVE_API_KEY"):
+        return "brave"
+    return None
+
+
+def search(q: str, count: int = 8) -> list[dict]:
+    """One web search -> [{url, title, description}]. [] if no provider is configured or the call fails."""
+    provider = search_provider()
+    try:
+        if provider == "tavily":
+            r = requests.post(
+                "https://api.tavily.com/search",
+                headers={"Authorization": f"Bearer {os.environ['TAVILY_API_KEY']}"},
+                json={"query": q, "max_results": count, "search_depth": "basic"},
+                timeout=TIMEOUT,
+            )
+            r.raise_for_status()
+            time.sleep(0.7)  # free dev keys: 100 requests/minute
+            return [{"url": x["url"], "title": x.get("title", ""), "description": x.get("content", "")}
+                    for x in r.json().get("results", [])]
+        if provider == "brave":
+            r = requests.get(
+                "https://api.search.brave.com/res/v1/web/search",
+                headers={"X-Subscription-Token": os.environ["BRAVE_API_KEY"], "Accept": "application/json"},
+                params={"q": q, "count": count},
+                timeout=TIMEOUT,
+            )
+            r.raise_for_status()
+            time.sleep(1.1)  # Brave: 1 request/second
+            return [{"url": x["url"], "title": x.get("title", ""), "description": x.get("description", "")}
+                    for x in r.json().get("web", {}).get("results", [])]
+    except (requests.RequestException, ValueError, KeyError) as e:
+        _log(f"  search failed: {q!r}: {e}")
+    return []
+
+
 def discover(config: dict) -> list[dict]:
     """Search the web for candidate event pages. Returns [{url, title, description, label}].
 
-    Requires BRAVE_API_KEY; returns [] (with a warning) when absent or disabled.
+    Needs TAVILY_API_KEY (or BRAVE_API_KEY); returns [] (with a warning) when absent or disabled.
     """
     d = config.get("discovery", {})
     if not d.get("enabled"):
         return []
-    key = os.environ.get("BRAVE_API_KEY")
-    if not key:
-        _log("Discovery skipped: BRAVE_API_KEY not set.")
+    if not search_provider():
+        _log("Discovery skipped: no search API key (set TAVILY_API_KEY).")
         return []
 
     skip = tuple(d.get("exclude_domains", []))
     found: dict[str, dict] = {}
     for label, q in discovery_queries(config):
-        try:
-            r = requests.get(
-                "https://api.search.brave.com/res/v1/web/search",
-                headers={"X-Subscription-Token": key, "Accept": "application/json"},
-                params={"q": q, "count": d.get("results_per_query", 10)},
-                timeout=TIMEOUT,
-            )
-            r.raise_for_status()
-        except requests.RequestException as e:
-            _log(f"  search failed: {q!r}: {e}")
-            continue
-        for item in r.json().get("web", {}).get("results", []):
+        for item in search(q, d.get("results_per_query", 8)):
             host = urlparse(item["url"]).netloc.lower()
-            if skip and host.endswith(skip):  # social/video/news hosts: no event pages worth scraping
+            if skip and host.endswith(skip):  # social/video hosts: no event pages worth scraping
                 continue
-            found.setdefault(item["url"], {"url": item["url"], "title": item.get("title", ""), "label": label,
-                                            "description": item.get("description", "")})
-        time.sleep(1.1)  # Brave free tier: 1 request/second
+            found.setdefault(item["url"], {**item, "label": label})
     return list(found.values())

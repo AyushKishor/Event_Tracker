@@ -22,12 +22,19 @@ python -m pytest
 ```
 
 ## Web search (Discovery)
-Needs the `BRAVE_API_KEY` repo secret (free tier is enough: ~100 searches a month). Every run searches
+Needs the `TAVILY_API_KEY` repo secret: Tavily's free plan is 1,000 searches a month, no card (a run uses ~150).
+`BRAVE_API_KEY` also works if you have one. Every run searches
 - the six core companies: "{company} partner summit / channel partner event / partner ecosystem conference {year}"
-- ten cities across the five regions (New York, Seattle, Bellevue, San Francisco, San Jose, Austin, Dallas,
-  Bengaluru, Mumbai, Hyderabad): "partner summit / channel partner event / alliances ecosystem conference {city} {year}"
-- from July on, next year as well. Hits are scraped (or, if the page blocks us, read from the search snippet) and go
-  through the same region / relevance / small-event rules. Queries and cities live under `discovery:` in `config.yaml`.
+- the main event cities (the five regions plus Las Vegas, Chicago, Atlanta): "partner summit / channel partner event /
+  alliances ecosystem conference {city} {year}"
+- each named flagship whose page shows no date (blocked sites like ServiceNow, SAP, Dell, or next edition not on the
+  page yet): "{event} {year} dates location", read from the search result snippets
+- from July on, next year as well.
+
+## Events with no date yet
+A tracked flagship whose next date is not published yet stays in the sheet with Date / Year = **TBD** (sheet
+"Date TBD", file `tracker_tbd.csv`, and in `tracker_all.csv`). When a later monthly run finds the date, the dated
+row replaces the TBD one.
 
 ## What gets kept
 Mirrors the manually kept 2026 tracker (`scripts/coverage_check.py <xlsx>` replays any such sheet through the filters):
