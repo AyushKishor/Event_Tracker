@@ -435,3 +435,10 @@ def test_placeholder_for_undated_flagship():
     ev = refresh.placeholder({"label": "Datadog DASH", "url": "https://www.dashcon.io/", "host": "Datadog",
                               "name": "Datadog DASH", "single": True}, cfg())
     assert (ev.name, ev.start, ev.region, ev.companies) == ("Datadog DASH", None, "TBD", ["Datadog"])
+
+
+def test_co_branded_x_meetups_are_small():
+    v = extract.classify("Building Voice AI That Holds Up in Production: Coval x Cloudflare", "Coval, Cloudflare Developer",
+                         "", "San Francisco", "", {}, cfg())
+    assert not v.keep
+    assert extract.classify("XChange 2027", "The Channel Company", "", "", "", {}, cfg()).keep  # 'Xchange' is not 'x'
